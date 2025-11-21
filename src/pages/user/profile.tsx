@@ -11,7 +11,7 @@ function UserProfile() {
         if (!session) navigate("/sign-in");
     }, [session, setSession]);
 
-    return <div>UserProfile</div>;
+    return <div>UserProfile1</div>;
 }
 
 export default UserProfile;
