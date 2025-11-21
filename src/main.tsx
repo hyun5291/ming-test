@@ -13,7 +13,11 @@ import UpdateTopic from "./pages/topic/update-topic.tsx"; //토픽수정
 import Mychart from "./pages/Mychart.tsx"; //내챠트
 import Chart_test from "./test/Chart_test.tsx"; //챠트테스트
 import UserProfile from "./pages/user/profile.tsx";
+
+//테스트
 import ExampleGetState from "./test/getState_test.tsx";
+import Toast_test from "./test/Toast_test.tsx";
+import Spinner_test from "./test/Spinner_test.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -25,6 +29,8 @@ createRoot(document.getElementById("root")!).render(
                     {/* test */}
                     <Route path="/test/chart_test" element={<Chart_test />} />
                     <Route path="/test/getState_test" element={<ExampleGetState />} />
+                    <Route path="/test/Toast_test" element={<Toast_test />} />
+                    <Route path="/test/Spinner_test" element={<Spinner_test />} />
                     {/* mychart */}
                     <Route path="/mychart" element={<Mychart />} />
                     {/* AUTH */}
@@ -33,9 +39,9 @@ createRoot(document.getElementById("root")!).render(
                     {/* USER */}
                     <Route path="/user/:id/profile" element={<UserProfile />} />
                     {/* TOPIC */}
-                    <Route path="/create-topic" element={<CreateTopic />} />
-                    <Route path="/detail-topic/:id" element={<DetailTopic />} />
-                    <Route path="/detail-topic/:id/edit" element={<UpdateTopic />} />
+                    <Route path="/topic/:topic_id/create" element={<CreateTopic />} />
+                    <Route path="/topic/:topic_id" element={<DetailTopic />} />
+                    <Route path="/topic/:topic_id/edit" element={<UpdateTopic />} />
                 </Route>
             </Routes>
         </BrowserRouter>

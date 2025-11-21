@@ -1,17 +1,17 @@
 import {NavLink, useNavigate} from "react-router";
 import {Button, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Separator} from "../ui";
-import sessionStore from "@/store/sessionStore";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faUser, faArrowRightFromBracket} from "@fortawesome/free-solid-svg-icons";
+import {useAuthStore} from "@/store/useAuthStore";
 function AppHeader() {
-    const user = sessionStore((s) => s.user);
-    const signOut = sessionStore((s) => s.signOut);
+    const user = useAuthStore((s) => s.user);
+    const authReset = useAuthStore((s) => s.reset);
 
     const navigate = useNavigate();
     const logOut = async () => {
-        await signOut();
+        await authReset();
 
-        navigate("/sign-in");
+        // navigate("/sign-in");
     };
 
     return (
@@ -40,7 +40,7 @@ function AppHeader() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuCheckboxItem
                                     onClick={() => {
-                                        navigate(`/user/${123}/profile`);
+                                        navigate(`/user/${user.id}/profile`);
                                     }}
                                 >
                                     <FontAwesomeIcon icon={faUser} />

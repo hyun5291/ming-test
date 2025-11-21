@@ -1,10 +1,12 @@
 import {ChartNoAxesCombined, ChevronDown, CodeXml, DraftingCompass, Footprints, Goal, Icon, Lightbulb, List, PencilLine, Rocket, Search} from "lucide-react";
-import {Button, Input} from "./components/ui";
+import {Button, Input, Spinner} from "./components/ui";
 import {HotTopic, NewTopic} from "./components/topic";
 import {useNavigate} from "react-router";
 import {GradientText} from "./components/ui/shadcn-io/gradient-text";
-import sessionStore from "./store/sessionStore";
 import {toast} from "sonner";
+import {useAuthStore} from "./store/useAuthStore";
+import supabase from "./utils/supabase";
+import {useState} from "react";
 
 const CATEGORIES = [
     // { icon: List, label: "전체" },
@@ -18,19 +20,51 @@ const CATEGORIES = [
 ];
 
 function App() {
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const user = sessionStore((s) => s.user);
+    const user = useAuthStore((s) => s.user);
+    console.log("App>", user);
 
-    const moveToPage = () => {
+    const moveToPage = async () => {
         if (!user) {
             toast.warning("토픽 작성은 로그인 후 이용 가능합니다.");
             return;
         }
-        navigate("/create-topic");
+        try {
+            //Supabase 새로운 세션 요청
+            const {data, error} = await supabase
+                .from("topics")
+                .insert([{author: user.id}])
+                .select();
+
+            if (error || !data) {
+                console.error("저장실패", error);
+                toast.warning("저장실패");
+                return;
+            }
+            // console.log(data);
+            console.log(data[0]);
+            // return;
+            if (data) {
+                setLoading(false);
+                toast.warning("토픽작성준비완료.");
+                navigate(`/topic/${data[0].id}/create`);
+            }
+        } catch (err) {
+            console.error("예외 발생:", err);
+            toast.warning("예외 발생>" + err);
+            setLoading(false);
+        }
     };
 
     return (
         <div className="w-full max-w-[1328px] h-full flex items-start py-6 gap-6">
+            {/* 로딩 블러 overlay */}
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-xs">
+                    <Spinner className="size-8" />
+                </div>
+            )}
             <aside className="sticky top-18 w-60 min-w-60 flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                     <p className="text-xl font-semibold">카테고리</p>

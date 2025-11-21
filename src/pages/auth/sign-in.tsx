@@ -1,13 +1,12 @@
 import {NavLink, useNavigate} from "react-router";
 import supabase from "@/utils/supabase";
-
 import {Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input} from "@/components/ui";
 import {toast} from "sonner";
 
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useForm} from "react-hook-form";
 import {z} from "zod";
-import sessionStore from "@/store/sessionStore";
+import {useAuthStore} from "@/store/useAuthStore";
 
 const formSchema = z.object({
     email: z.email("올바른 형식의 이메일 주소를 입력해주세요."),
@@ -27,7 +26,7 @@ function SignIn() {
     const navigate = useNavigate();
 
     // 일반 로그인
-    const {setUser, setSession} = sessionStore(); //스토어
+    const {setUser, setSession} = useAuthStore(); //스토어
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
@@ -43,13 +42,15 @@ function SignIn() {
                 toast.error(signInError.message === "Invalid login credentials" ? "입력하신 정보가 일치하지 않습니다." : "로그인 중 오류가 발생하였습니다.");
                 return;
             }
+            console.log(user);
+            console.log(session);
 
             // user와 session 두 값 모두 null이 아닐 경우에만 로그인이 완료되었음을 의미
             if (user && session) {
                 // 로그인 성공 시,
                 console.log("(sign-in)user>", user);
                 console.log("(sign-in)session>", session);
-                setUser(user); //스토어
+                setUser({id: user.id, email: user.email, role: user.role}); //스토어
                 setSession(session); //스토어
                 toast.success("로그인을 완료하였습니다.");
                 navigate("/"); // => 메인 페이지로 리디렉션

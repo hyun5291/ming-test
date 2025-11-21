@@ -1,14 +1,19 @@
+import type {BlockNoteEditor} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/shadcn";
+import {BlockNoteView} from "@blocknote/shadcn";
 import "@blocknote/shadcn/style.css";
+import {useEffect} from "react";
+interface P_type {
+    p_editor: BlockNoteEditor;
+}
 
-function AppTextEditor() {
+function AppTextEditor({p_editor}: P_type) {
     // Creates a new editor instance.
-    const editor = useCreateBlockNote();
+    // const editor = useCreateBlockNote();.
+
     return (
         <BlockNoteView
-            editor={editor}
+            editor={p_editor}
             shadCNComponents={
                 {
                     // Pass modified ShadCN components from your project here.
@@ -20,4 +25,4 @@ function AppTextEditor() {
     );
 }
 
-export { AppTextEditor };
+export {AppTextEditor};

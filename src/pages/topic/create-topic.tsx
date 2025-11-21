@@ -1,15 +1,19 @@
 import {AppTextEditor} from "@/components/common";
-import {Button, Input, Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue, Separator} from "@/components/ui";
-import sessionStore from "@/store/sessionStore";
+import {Button, Input, Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue, Separator, Spinner} from "@/components/ui";
 import supabase from "@/utils/supabase";
 import {ArrowLeft, Asterisk, BookOpenCheck, Image, ImageOff, Save, Trash2} from "lucide-react";
 import {useEffect, useRef, useState} from "react";
-import {useNavigate} from "react-router";
+import {useNavigate, useParams} from "react-router";
 import {toast} from "sonner";
+import {nanoid} from "nanoid";
+import {useAuthStore} from "@/store/useAuthStore";
+import {useCreateBlockNote} from "@blocknote/react";
 
 function CreateTopic() {
-    const user = sessionStore((s) => s.user);
-    const session = sessionStore((s) => s.session);
+    const [loading, setLoading] = useState(false);
+    const {topic_id} = useParams();
+    const user = useAuthStore((s) => s.user);
+    const session = useAuthStore((s) => s.session);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,7 +21,7 @@ function CreateTopic() {
     }, [session, user]);
 
     const [title, setTitle] = useState<string>("");
-    const [content, setContent] = useState<string | null>(null);
+    const block_editor = useCreateBlockNote(); //컨텐츠
     const [category, setCategory] = useState<string>("");
     const [thumbnail, setThumbnail] = useState<File | string | null>(null);
     //file 타입의 원본 데이터를 받음. supabase의 이미지만 관리하는 storage에 전달받은 file 저장(URL)
@@ -32,7 +36,7 @@ function CreateTopic() {
         console.log(e.target.files);
     };
 
-    //이미지미리보기
+    //-------------이미지 미리보기//-------------//-------------//-------------//-------------
     const handleRenderPreview = () => {
         if (typeof thumbnail === "string") {
             return <img src={thumbnail} alt="@THUMBNAIL" className="w-full aspect-video rounded-md object-cover" />;
@@ -54,24 +58,51 @@ function CreateTopic() {
         );
     };
 
-    //저장
-    const handleSave = () => {
-        console.log("title>", title);
-        console.log("category>", category);
-        console.log("thumbnail>", thumbnail);
+    //-------------저장버튼로직시작//-------------//-------------//-------------//-------------//-------------
+    const handleSave = async () => {
+        setLoading(true);
         console.log("thumbnail>", (thumbnail as File)?.name);
-        console.log(user?.id);
-        if (title.length === 0) console.log("토픽입력");
-        if (category.length === 0) console.log("카테고리입력");
-        if (!thumbnail) console.log("썸네일삽입필요");
+        if (!title && !category && !thumbnail) {
+            toast.warning("입력되지 않은 항목이 있습니다. 필수값을 입력해주세요.");
+            return;
+        }
+        //1.파일 업로드 시 supabase의 storage 즉, bucket 폴더에 이미지를 먼저 업로드 한 후
+        //이미지가 저장된 bucket 폴더의 경로 url주소를 우리가 관리하고 있는 topics 테이블 thumbnail 컬럼에 문자열 형태
+        //즉, string, 타입으로저장(db text)
+        // return;
 
-        const insertTopic = async () => {
-            console.log("저장고고");
+        //최초로 파일을 db에저장할경우 or 새로운 파일을 업로드할경우
+        let thumbnailUrl: string | null = null;
+        // console.log(thumbnail);
+        if (thumbnail && thumbnail instanceof File) {
+            //파일 storage에업로드
+            const fileExt = thumbnail.name.split(".").pop(); //파일확장자 뽑기
+            const fileName = `${nanoid()}.${fileExt}`;
+            const filePath = `topics/${fileName}`;
+            const bucketName = "ming-files";
+
+            const {error: fileUploadError} = await supabase.storage.from(bucketName).upload(filePath, thumbnail);
+            if (fileUploadError) {
+                throw fileUploadError;
+            }
+            const {data} = supabase.storage.from(bucketName).getPublicUrl(filePath);
+            if (!data) {
+                toast.error("해당 파일의 Public URL 조회를 실패하였습니다.");
+                throw new Error("해당 파일의 Public URL 조회를 실패하였습니다.");
+            }
+            console.log("data.publicUrl(create-topic.tsx)", data.publicUrl);
+            thumbnailUrl = data.publicUrl;
+        }
+        //-------------업데이트 db로직//-------------//-------------//-------------//-------------//-------------
+        const updateTopic = async () => {
+            console.log("업데이트고~");
+            const jsonContent = JSON.stringify(block_editor.document); //컨텐츠불러오기 blocknote
             try {
                 //Supabase 새로운 세션 요청
                 const {data, error} = await supabase
                     .from("topics")
-                    .insert([{uid: user?.id, title: title, category: category, content: content, thumbnail: (thumbnail as File)?.name, created_at: "now()", updated_at: "now()"}])
+                    .update({author: user?.id, title: title, category: category, content: jsonContent, thumbnail: thumbnailUrl, status: "TEMP", created_at: "now()", updated_at: "now()"})
+                    .eq("id", topic_id)
                     .select();
 
                 if (error || !data) {
@@ -80,16 +111,26 @@ function CreateTopic() {
                     return;
                 }
                 console.log(data);
-                if (data) toast.warning("저장완료");
+                if (data) {
+                    setLoading(false);
+                    toast.warning("저장완료");
+                }
             } catch (err) {
                 console.error("예외 발생:", err);
+                setLoading(false);
             }
         };
-        insertTopic();
+        updateTopic();
     };
-
+    //-------------//-------------//-------------//-------------//-------------//-------------//-------------
     return (
         <main className="w-full flex-1 flex justify-center">
+            {/* 로딩 블러 overlay */}
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-xs">
+                    <Spinner className="size-8" />
+                </div>
+            )}
             <div className="w-full max-w-[1328px] h-full flex gap-6 py-6">
                 {/* STEP 01 */}
                 <div className="flex-1 flex flex-col gap-6">
@@ -118,7 +159,7 @@ function CreateTopic() {
                             </div>
                             {/* Blocknote 텍스트 에디터 UI */}
                             <div className="w-full h-screen">
-                                <AppTextEditor />
+                                <AppTextEditor p_editor={block_editor} />
                             </div>
                         </div>
                     </div>
