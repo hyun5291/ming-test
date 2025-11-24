@@ -1,4 +1,4 @@
-import {Outlet} from "react-router";
+import {Outlet, useLocation} from "react-router";
 import {ThemeProvider} from "@/components/theme-provider";
 import {AppFooter, AppHeader} from "@/components/common";
 import {Toaster} from "@/components/ui/sonner";
@@ -15,6 +15,11 @@ function RootLayout() {
     // console.log("(layout)user>", user);
     // console.log("(layout)user.email>", user?.email);
     console.log("(layout)session>", session);
+
+    const {pathname} = useLocation();
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [pathname]);
 
     useEffect(() => {
         console.log("(layout)useEffect실행");

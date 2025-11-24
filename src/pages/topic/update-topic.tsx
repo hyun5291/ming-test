@@ -7,7 +7,6 @@ import {useNavigate, useParams} from "react-router";
 import {toast} from "sonner";
 import {nanoid} from "nanoid";
 import {useAuthStore} from "@/store/useAuthStore";
-import {useCreateBlockNote} from "@blocknote/react";
 import type {Block} from "@blocknote/core";
 
 function CreateTopic() {
@@ -23,11 +22,7 @@ function CreateTopic() {
 
     //---각 필드값
     const [title, setTitle] = useState<string>("");
-
-    const [initialBlocks, setInitialBlocks] = useState<Block[] | undefined>(undefined);
-    const block_editor = useCreateBlockNote({
-        initialContent: initialBlocks,
-    });
+    const [content, setContent] = useState<Block[]>([]);
 
     const [category, setCategory] = useState<string>("");
     const [thumbnail, setThumbnail] = useState<File | string | null>(null);
@@ -104,33 +99,30 @@ function CreateTopic() {
             thumbnailUrl = thumbnail; //기존에 썸네일링크 string 이있다면
         }
         //-------------업데이트 db//-------------//-------------//-------------//-------------//-------------
-        const updateTopic = async () => {
-            console.log("업데이트고~");
-            const jsonContent = JSON.stringify(block_editor.document); //컨텐츠불러오기 blocknote
-            try {
-                //Supabase 새로운 세션 요청
-                const {data, error} = await supabase
-                    .from("topics")
-                    .update({author: user?.id, title: title, category: category, content: jsonContent, thumbnail: thumbnailUrl, status: "TEMP", created_at: "now()", updated_at: "now()"})
-                    .eq("id", topic_id)
-                    .select();
+        console.log("업데이트고~");
+        // const jsonContent = JSON.stringify(block_editor.document); //컨텐츠불러오기 blocknote
+        try {
+            //Supabase 새로운 세션 요청
+            const {data, error} = await supabase
+                .from("topics")
+                .update({author: user?.id, title: title, category: category, content: JSON.stringify(content), thumbnail: thumbnailUrl, status: "TEMP", created_at: "now()", updated_at: "now()"})
+                .eq("id", topic_id)
+                .select();
 
-                if (error || !data) {
-                    console.error("저장실패", error);
-                    toast.warning("저장실패");
-                    return;
-                }
-                console.log(data);
-                if (data) {
-                    setLoading(false);
-                    toast.warning("저장완료");
-                }
-            } catch (err) {
-                console.error("예외 발생:", err);
-                setLoading(false);
+            if (error || !data) {
+                console.error("저장실패", error);
+                toast.warning("저장실패");
+                return;
             }
-        };
-        updateTopic();
+            console.log(data);
+            if (data) {
+                setLoading(false);
+                toast.warning("저장완료");
+            }
+        } catch (err) {
+            console.error("예외 발생:", err);
+            setLoading(false);
+        }
     };
     //-------------//-------------//-------------//-------------//-------------//-------------//-------------
 
@@ -146,10 +138,17 @@ function CreateTopic() {
                 if (data) {
                     const parsed = JSON.parse(data[0].content);
                     // parsed가 Block[] 형태이어야 함
-                    setInitialBlocks(parsed);
-                    setTitle(data[0].title);
-                    setCategory(data[0].category);
-                    setThumbnail(data[0].thumbnail);
+                    // setInitialBlocks(parsed);
+                    // setContent(parsed);
+                    // setTitle(data[0].title);
+                    // setCategory(data[0].category);
+                    // console.log("update>", data[0].category);
+                    // setThumbnail(data[0].thumbnail);
+
+                    setContent(parsed ?? []);
+                    setTitle(data[0].title ?? "");
+                    setCategory(data[0].category ?? "");
+                    setThumbnail(data[0].thumbnail ?? null);
                 }
 
                 if (error) {
@@ -167,12 +166,59 @@ function CreateTopic() {
         getTopic();
     }, []);
     //-------------db에서불러온 블락노트 재생성 //-------------//-------------//-------------
-    useEffect(() => {
-        if (!initialBlocks || !block_editor) return;
-
-        block_editor.replaceBlocks(block_editor.document, initialBlocks);
-    }, [initialBlocks, block_editor]);
+    // useEffect(() => {
+    //     if (!content || !p_editor) return;
+    //     p_editor.replaceBlocks(p_editor.document, content);
+    // }, [content]);
     //-------------//-------------//-------------//-------------//-------------//-------------
+
+    //-------------발행버튼 로직//-------------//-------------//-------------//-------------//-------------
+    const handlePublish = async () => {
+        setLoading(true);
+        if (!title || !category || !thumbnail || !content) {
+            toast.warning("입력되지 않은 항목이 있습니다. 필수값을 입력해주세요.");
+            return;
+        }
+        let thumbnailUrl: string | null = null;
+        if (thumbnail && thumbnail instanceof File) {
+            //파일 storage에업로드
+            const fileExt = thumbnail.name.split(".").pop(); //파일확장자 뽑기
+            const fileName = `${nanoid()}.${fileExt}`;
+            const filePath = `topics/${fileName}`;
+            const bucketName = "ming-files";
+
+            const {error: fileUploadError} = await supabase.storage.from(bucketName).upload(filePath, thumbnail);
+            if (fileUploadError) {
+                throw fileUploadError;
+            }
+            const {data} = supabase.storage.from(bucketName).getPublicUrl(filePath);
+            if (!data) {
+                toast.error("해당 파일의 Public URL 조회를 실패하였습니다.");
+                throw new Error("해당 파일의 Public URL 조회를 실패하였습니다.");
+            }
+            console.log("data.publicUrl(create-topic.tsx)", data.publicUrl);
+            thumbnailUrl = data.publicUrl;
+        }
+
+        //-------------db update 로직//-------------//-------------//-------------//-------------//-------------
+        const {data, error} = await supabase
+            .from("topics")
+            .update({author: user?.id, title: title, category: category, content: JSON.stringify(content), thumbnail: thumbnailUrl, status: "PUBLISH", created_at: "now()", updated_at: "now()"})
+            .eq("id", topic_id)
+            .select();
+
+        if (error || !data) {
+            console.error("발행실패", error);
+            toast.warning("발행실패");
+            return;
+        }
+        console.log(data);
+        if (data) {
+            setLoading(false);
+            toast.warning("토픽을 발행하였습니다.");
+            navigate("/");
+        }
+    };
     return (
         <main className="w-full flex-1 flex justify-center">
             {/* 로딩 블러 overlay */}
@@ -209,7 +255,7 @@ function CreateTopic() {
                             </div>
                             {/* Blocknote 텍스트 에디터 UI */}
                             <div className="w-full h-screen">
-                                <AppTextEditor p_editor={block_editor} />
+                                <AppTextEditor props={content} onSetContent={setContent} />
                             </div>
                         </div>
                     </div>
@@ -277,11 +323,11 @@ function CreateTopic() {
                 <Button variant={"outline"} className="px-5!">
                     <ArrowLeft />
                 </Button>
-                <Button variant={"outline"} className="px-5! bg-amber-900/30!" onClick={() => handleSave()}>
+                <Button variant={"outline"} className="px-5! bg-amber-900/30!" onClick={handleSave}>
                     <Save />
                     저장
                 </Button>
-                <Button variant={"outline"} className="px-5! bg-emerald-900/30!">
+                <Button variant={"outline"} className="px-5! bg-emerald-900/30!" onClick={handlePublish}>
                     <BookOpenCheck />
                     발행
                 </Button>

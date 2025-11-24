@@ -1,28 +1,22 @@
-import type {BlockNoteEditor} from "@blocknote/core";
+import {useCreateBlockNote} from "@blocknote/react";
+import {BlockNoteView} from "@blocknote/mantine";
 import "@blocknote/core/fonts/inter.css";
-import {BlockNoteView} from "@blocknote/shadcn";
-import "@blocknote/shadcn/style.css";
-import {useEffect} from "react";
-interface P_type {
-    p_editor: BlockNoteEditor;
+import "@blocknote/mantine/style.css";
+import {ko} from "@blocknote/core/locales";
+import type {Block, BlockNoteEditor} from "@blocknote/core";
+
+interface Props {
+    props: Block[];
+    onSetContent: (param: Block[]) => void;
 }
-
-function AppTextEditor({p_editor}: P_type) {
+// function AppTextEditor({p_editor}: P_type) {
+function AppTextEditor({props, onSetContent}: Props) {
     // Creates a new editor instance.
-    // const editor = useCreateBlockNote();.
+    const editor = useCreateBlockNote({
+        dictionary: ko,
+    });
 
-    return (
-        <BlockNoteView
-            editor={p_editor}
-            shadCNComponents={
-                {
-                    // Pass modified ShadCN components from your project here.
-                    // Otherwise, the default ShadCN components will be used.
-                }
-            }
-            className="bg-input/30 min-h-80"
-        />
-    );
+    return <BlockNoteView editor={editor} className="bg-input/30 min-h-80" onChange={() => onSetContent(editor.document)} />;
 }
 
 export {AppTextEditor};

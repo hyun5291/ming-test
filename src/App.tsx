@@ -6,7 +6,7 @@ import {GradientText} from "./components/ui/shadcn-io/gradient-text";
 import {toast} from "sonner";
 import {useAuthStore} from "./store/useAuthStore";
 import supabase from "./utils/supabase";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 const CATEGORIES = [
     // { icon: List, label: "전체" },
@@ -17,6 +17,14 @@ const CATEGORIES = [
     {icon: ChartNoAxesCombined, label: "마케팅"},
     {icon: DraftingCompass, label: "디자인·일러스트"},
     {icon: Footprints, label: "자기계발"},
+
+    //<SelectItem value="humidity">인문학</SelectItem>
+    //<SelectItem value="start-up">스타트업</SelectItem>
+    //<SelectItem value="programming">IT&middot;프로그래밍</SelectItem>
+    //<SelectItem value="planning">서비스&middot;전략 기획</SelectItem>
+    //<SelectItem value="marketing">마케팅</SelectItem>
+    //<SelectItem value="design">디자인&middot;일러스트</SelectItem>
+    //<SelectItem value="self-development">자기계발</SelectItem>
 ];
 
 function App() {
@@ -24,6 +32,30 @@ function App() {
     const navigate = useNavigate();
     const user = useAuthStore((s) => s.user);
     console.log("App>", user);
+
+    const [topics, setTopics] = useState<any[]>([]);
+
+    const fetchTopics = async () => {
+        try {
+            //
+            const {data, error} = await supabase.from("topics").select("*").eq("status", "PUBLISH").order("created_at", {ascending: false});
+            if (error) {
+                toast.warning(error.message);
+                return;
+            }
+            if (data) {
+                //
+                console.log("App-data>", data);
+                setTopics(data);
+            }
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
+    };
+    useEffect(() => {
+        fetchTopics();
+    }, []);
 
     const moveToPage = async () => {
         if (!user) {
@@ -87,7 +119,7 @@ function App() {
                 </div>
             </aside>
             <div className="min-h-screen flex-1 flex flex-col gap-12">
-                <section className="w-full flex flex-col items-center justify-center gap-6">
+                <section className="w-full flex flex-col items-center justify-center gap-3">
                     <div className="flex flex-col">
                         <div className="flex items-center gap-2">
                             <img src="/gifs/heart.gif" alt="@HEART_GIFS" className="w-8" />
@@ -134,14 +166,13 @@ function App() {
                         <p className="text-neutral-500 text-base">새로운 시선으로, 새로운 이야기를 시작하세요. 지금 바로 당신만의 토픽을 작성해보세요.</p>
                     </div>
                     <div className="flex flex-wrap gap-6">
-                        <NewTopic />
-                        <NewTopic />
-                        <NewTopic />
-                        <NewTopic />
+                        {topics.slice(0, 4).map((data, idx) => (
+                            <NewTopic key={idx} props={data} />
+                        ))}
                     </div>
                 </section>
             </div>
-            <Button variant={"destructive"} className="fixed bottom-35 left-[57%] -translate-1/2 p-5! rounded-full opacity-100" onClick={moveToPage}>
+            <Button variant={"destructive"} className="fixed bottom-40 left-[57%] -translate-1/2 p-5! rounded-full opacity-100" onClick={moveToPage}>
                 <PencilLine />
                 토픽 작성하기
             </Button>
