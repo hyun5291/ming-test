@@ -41,7 +41,7 @@ createRoot(document.getElementById("root")!).render(
                     {/* TOPIC */}
                     <Route path="/topic/:topic_id/create" element={<CreateTopic />} />
                     <Route path="/topic/:topic_id" element={<DetailTopic />} />
-                    <Route path="/topic/:topic_id/edit" element={<UpdateTopic />} />
+                    <Route path="/topic/:topic_id/edit" element={<CreateTopic />} />
                 </Route>
             </Routes>
         </BrowserRouter>

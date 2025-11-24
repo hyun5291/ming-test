@@ -1,5 +1,25 @@
 import {AppTextEditor} from "@/components/common";
-import {Button, Input, Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue, Separator, Spinner} from "@/components/ui";
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+    Button,
+    Input,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+    Separator,
+    Spinner,
+} from "@/components/ui";
 import supabase from "@/utils/supabase";
 import {ArrowLeft, Asterisk, BookOpenCheck, Image, ImageOff, Save, Trash2} from "lucide-react";
 import {useEffect, useRef, useState} from "react";
@@ -9,17 +29,18 @@ import {nanoid} from "nanoid";
 import {useAuthStore} from "@/store/useAuthStore";
 import type {Block} from "@blocknote/core";
 
-function CreateTopic() {
-    const [loading, setLoading] = useState(false);
-    const {topic_id} = useParams();
-    const user = useAuthStore((s) => s.user);
-    const session = useAuthStore((s) => s.session);
+function UpdateTopic() {
+    const [loading, setLoading] = useState(false); //저장로딩용
+    const {topic_id} = useParams(); //라우트파람
+    const user = useAuthStore((s) => s.user); //스토어
+    const session = useAuthStore((s) => s.session); //스토어
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!session) navigate("/sign-in");
+        if (!session) navigate("/sign-in"); //강제접근방지
     }, [session, user]);
 
+    //---각 필드값
     const [title, setTitle] = useState<string>("");
     const [content, setContent] = useState<Block[]>([]);
 
@@ -37,7 +58,7 @@ function CreateTopic() {
         console.log(e.target.files);
     };
 
-    //-------------이미지 미리보기//-------------//-------------//-------------//-------------
+    //-------------이미지미리보기//-------------//-------------//-------------//-------------//-------------
     const handleRenderPreview = () => {
         if (typeof thumbnail === "string") {
             return <img src={thumbnail} alt="@THUMBNAIL" className="w-full aspect-video rounded-md object-cover" />;
@@ -59,23 +80,25 @@ function CreateTopic() {
         );
     };
 
-    //-------------저장버튼로직시작//-------------//-------------//-------------//-------------//-------------
+    //-------------저장버튼 클릭 로직시작//-------------//-------------//-------------//-------------//-------------
     const handleSave = async () => {
+        console.log("thumbnail>", (thumbnail as File)?.name);
         if (!title && !category && !thumbnail) {
             toast.warning("입력되지 않은 항목이 있습니다. 필수값을 입력해주세요.");
             return;
         }
 
-        setLoading(true);
+        setLoading(true); //저장처리로딩
         //1.파일 업로드 시 supabase의 storage 즉, bucket 폴더에 이미지를 먼저 업로드 한 후
         //이미지가 저장된 bucket 폴더의 경로 url주소를 우리가 관리하고 있는 topics 테이블 thumbnail 컬럼에 문자열 형태
         //즉, string, 타입으로저장(db text)
-        // return;
 
         //최초로 파일을 db에저장할경우 or 새로운 파일을 업로드할경우
         let thumbnailUrl: string | null = null;
         // console.log(thumbnail);
+        //-------------섬네일이 파일타입일경우 버킷저장로직//-------------//-------------//-------------//-------------
         if (thumbnail && thumbnail instanceof File) {
+            //섬네일이 파일타입일경우 버킷저장로직
             //파일 storage에업로드
             const fileExt = thumbnail.name.split(".").pop(); //파일확장자 뽑기
             const fileName = `${nanoid()}.${fileExt}`;
@@ -93,11 +116,14 @@ function CreateTopic() {
             }
             console.log("data.publicUrl(create-topic.tsx)", data.publicUrl);
             thumbnailUrl = data.publicUrl;
+        } else if (thumbnail) {
+            thumbnailUrl = thumbnail; //기존에 썸네일링크 string 이있다면
         }
-        //-------------업데이트 db로직//-------------//-------------//-------------//-------------//-------------
+        //-------------업데이트 db//-------------//-------------//-------------//-------------//-------------
         console.log("업데이트고~");
         // const jsonContent = JSON.stringify(block_editor.document); //컨텐츠불러오기 blocknote
         try {
+            //Supabase 새로운 세션 요청
             const {data, error} = await supabase
                 .from("topics")
                 .update({author: user?.id, title: title, category: category, content: JSON.stringify(content), thumbnail: thumbnailUrl, status: "TEMP", created_at: "now()", updated_at: "now()"})
@@ -119,6 +145,42 @@ function CreateTopic() {
             setLoading(false);
         }
     };
+    //-------------//-------------//-------------//-------------//-------------//-------------//-------------
+
+    //-------------기존내용 불러오기//-------------//-------------//-------------//-------------//-------------
+    useEffect(() => {
+        async function getTopic() {
+            try {
+                setLoading(true);
+                //Supabase 새로운 세션 요청
+                const {data, error} = await supabase.from("topics").select("*").eq("id", topic_id);
+                console.log(data);
+
+                if (data) {
+                    const parsed = JSON.parse(data[0].content);
+                    // parsed가 Block[] 형태이어야 함
+
+                    setContent(parsed); //
+                    setTitle(data[0].title ?? "");
+                    setCategory(data[0].category ?? "");
+                    setThumbnail(data[0].thumbnail ?? null);
+                }
+
+                if (error) {
+                    //설마실패할일이있을까 체크.
+                    console.error("실패:", error);
+                    return;
+                }
+            } catch (err) {
+                //설마 여기까진않오겠지...
+                console.error("예외 발생:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        getTopic();
+    }, []);
+
     //-------------발행버튼 로직//-------------//-------------//-------------//-------------//-------------
     const handlePublish = async () => {
         if (!title || !category || !thumbnail || !content) {
@@ -146,9 +208,11 @@ function CreateTopic() {
             }
             console.log("data.publicUrl(create-topic.tsx)", data.publicUrl);
             thumbnailUrl = data.publicUrl;
+        } else {
+            thumbnailUrl = thumbnail;
         }
+        console.log("thumbnailUrl>>>>>>>>>", thumbnailUrl);
 
-        // const jsonContent = JSON.stringify(block_editor.document); //컨텐츠불러오기 blocknote
         //-------------db update 로직//-------------//-------------//-------------//-------------//-------------
         const {data, error} = await supabase
             .from("topics")
@@ -169,7 +233,16 @@ function CreateTopic() {
         }
     };
 
-    //-------------//-------------//-------------//-------------//-------------//-------------//-------------
+    // 삭제
+    async function deleteTopic() {
+        const {error} = await supabase.from("topics").delete().eq("id", topic_id);
+        if (error) {
+            console.error("삭제 오류:", error);
+            return;
+        }
+        navigate("/"); // 삭제후홈
+    }
+
     return (
         <main className="w-full flex-1 flex justify-center">
             {/* 로딩 블러 overlay */}
@@ -183,7 +256,7 @@ function CreateTopic() {
                 <div className="flex-1 flex flex-col gap-6">
                     <div className="flex flex-col">
                         <p className="font-medium text-[#FA6859]">Step 1</p>
-                        <p className="font-semibold text-base">토픽 작성하기</p>
+                        <p className="font-semibold text-base">토픽 작성하기(cr)</p>
                     </div>
                     <Separator />
                     <div className="flex flex-col gap-6">
@@ -282,12 +355,30 @@ function CreateTopic() {
                     <BookOpenCheck />
                     발행
                 </Button>
-                <Button variant={"outline"} className="px-5! bg-red-900/30!">
-                    <Trash2 />
-                </Button>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="icon" className="bg-red-900/50!">
+                            <Trash2 />
+                        </Button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent className="sm:max-w-[400px]">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>삭제하시겠습니까?</AlertDialogTitle>
+                            <AlertDialogDescription>이 작업은 되돌릴 수 없습니다.</AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter className="gap-2">
+                            <AlertDialogCancel>아니오</AlertDialogCancel>
+                            <Button variant="destructive" onClick={deleteTopic}>
+                                예
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </main>
     );
 }
 
-export default CreateTopic;
+export default UpdateTopic;

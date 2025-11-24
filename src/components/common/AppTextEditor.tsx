@@ -15,13 +15,13 @@ function AppTextEditor({props, onSetContent}: Props) {
 
     const editor = useCreateBlockNote({
         dictionary: ko,
-        initialContent: props.length > 0 ? props : undefined,
+        initialContent: props?.length > 0 ? props : undefined,
     });
 
     const initialLoaded = useRef(false);
     useEffect(() => {
         // 첫 로딩 시에만 replaceBlocks 사용
-        if (!initialLoaded.current && props.length > 0) {
+        if (!initialLoaded.current && props && props.length > 0) {
             editor.replaceBlocks(editor.document, props);
             initialLoaded.current = true;
         }
