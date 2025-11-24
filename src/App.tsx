@@ -172,7 +172,7 @@ function App() {
                     </div>
                 </section>
             </div>
-            <Button variant={"destructive"} className="fixed bottom-40 left-[57%] -translate-1/2 p-5! rounded-full opacity-100" onClick={moveToPage}>
+            <Button variant={"destructive"} className="fixed bottom-40 left-[57%] -translate-1/2 p-5! rounded-full opacity-80 cursor-pointer" onClick={moveToPage}>
                 <PencilLine />
                 토픽 작성하기
             </Button>

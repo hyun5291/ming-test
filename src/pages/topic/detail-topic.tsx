@@ -1,3 +1,4 @@
+import {UserInfo} from "@/components/topic";
 import {
     Button,
     Separator,
@@ -11,11 +12,13 @@ import {
     Spinner,
     AlertDialogCancel,
 } from "@/components/ui";
+import {useAuthStore} from "@/store/useAuthStore";
 
 import supabase from "@/utils/supabase";
-import {ArrowLeft, Edit, Trash2} from "lucide-react";
+import {ArrowLeft, ChartNoAxesColumnIncreasing, Edit, Heart, MessageCircleMore, Trash2} from "lucide-react";
 import {useEffect, useState} from "react";
 import {useParams, useNavigate} from "react-router";
+import {toast} from "sonner";
 
 // 우리가 필요한 정보
 // - title: 제목
@@ -73,6 +76,7 @@ function extractTextfromContent(content: string) {
 }
 
 function DetailTopic() {
+    const user = useAuthStore((s) => s.user); //스토어
     const navigate = useNavigate();
     const {topic_id} = useParams();
     const [topic, setTopic] = useState<Topic | null>(null);
@@ -101,6 +105,33 @@ function DetailTopic() {
         }
         getTopic();
     }, [topic_id]);
+    console.log(user?.id);
+
+    const [liked, setLiked] = useState(false);
+    const pluseLike = async () => {
+        // if (!topic) return;
+        // setLoading(true);
+        // const newLikeCount = liked ? (topic.likeCounts ?? 1) - 1 : (topic.likeCounts ?? 0) + 1;
+        // setTopic((prev) => (prev ? {...prev, likeCounts: newLikeCount} : prev));
+        // setLiked(!liked); // 토글
+        // try {
+        //     //Supabase 새로운 세션 요청
+        //     const {data, error} = await supabase.from("topics").update({likeCounts: newLikeCount}).eq("id", topic_id).select();
+        //     if (error || !data) {
+        //         console.error("좋아요실패", error);
+        //         toast.warning("좋아요실패");
+        //         return;
+        //     }
+        //     console.log(data);
+        //     toast.success(liked ? "좋아요 취소" : "좋아요 +1");
+        // } catch (err) {
+        //     console.error("예외 발생:", err);
+        //     setTopic((prev) => (prev ? {...prev, likeCounts: topic.likeCounts} : prev));
+        //     setLiked(liked);
+        // } finally {
+        //     setLoading(false);
+        // }
+    };
 
     // 삭제
     async function deleteTopic() {
@@ -130,32 +161,36 @@ function DetailTopic() {
                         <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
                             <ArrowLeft />
                         </Button>
-                        {/* 수정 */}
-                        <Button variant="outline" size="icon" onClick={() => navigate(`/topic/${topic_id}/edit`)}>
-                            <Edit />
-                        </Button>
-                        {/* 삭제확인*/}
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="icon" className="bg-red-900/50!">
-                                    <Trash2 />
+                        {user?.id && user.id === topic?.author ? (
+                            <>
+                                <Button variant="outline" size="icon" onClick={() => navigate(`/topic/${topic_id}/edit`)}>
+                                    <Edit />
                                 </Button>
-                            </AlertDialogTrigger>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="outline" size="icon" className="bg-red-900/50!">
+                                            <Trash2 />
+                                        </Button>
+                                    </AlertDialogTrigger>
 
-                            <AlertDialogContent className="sm:max-w-[400px]">
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>삭제하시겠습니까?</AlertDialogTitle>
-                                    <AlertDialogDescription>이 작업은 되돌릴 수 없습니다.</AlertDialogDescription>
-                                </AlertDialogHeader>
+                                    <AlertDialogContent className="sm:max-w-[400px]">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>삭제하시겠습니까?</AlertDialogTitle>
+                                            <AlertDialogDescription>이 작업은 되돌릴 수 없습니다.</AlertDialogDescription>
+                                        </AlertDialogHeader>
 
-                                <AlertDialogFooter className="gap-2">
-                                    <AlertDialogCancel>아니오</AlertDialogCancel>
-                                    <Button variant="destructive" onClick={deleteTopic}>
-                                        예
-                                    </Button>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                                        <AlertDialogFooter className="gap-2">
+                                            <AlertDialogCancel>아니오</AlertDialogCancel>
+                                            <Button variant="destructive" onClick={deleteTopic}>
+                                                예
+                                            </Button>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </>
+                        ) : (
+                            ""
+                        )}
                     </div>
 
                     {/* 제목 영역 */}
@@ -173,12 +208,27 @@ function DetailTopic() {
             </div>
 
             {/* 컨텐*/}
-            <div className="mt-3">{topic && extractTextfromContent(topic.content)}</div>
+            <div className="mt-1 bg-input/30 p-3 rounded-md">{topic && extractTextfromContent(topic.content)}</div>
 
-            <div className="mt-3 p-2 border rounded-md bg-muted/20">
-                <p>작성자: {topic?.author}</p>
-                <p>조회수: {topic?.viewCounts ?? 0}</p>
-                <p>좋아요: {topic?.likeCounts ?? 0}</p>
+            <div className="mt-2 bg-input/30 p-3 rounded-md flex items-end justify-between">
+                <UserInfo uid={topic?.author} />
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                            <ChartNoAxesColumnIncreasing size={14} />
+                            <p>{topic?.viewCounts === null ? 0 : topic?.viewCounts}</p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <MessageCircleMore size={14} />
+                            <p>{topic?.commentCounts === null ? 0 : topic?.commentCounts}</p>
+                        </div>
+                    </div>
+                    <Separator orientation="vertical" className="h-3!" />
+                    <div className="flex items-center gap-1 cursor-pointer" onClick={pluseLike}>
+                        <Heart size={14} className="text-rose-500" />
+                        <p>{topic?.likeCounts === null ? 0 : topic?.likeCounts}</p>
+                    </div>
+                </div>
             </div>
         </main>
     );

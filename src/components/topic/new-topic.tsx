@@ -14,6 +14,9 @@ interface Topic {
     thumbnail: string;
     status: string;
     author: string;
+    viewCounts: number;
+    likeCounts: number;
+    commentCounts: number;
 }
 
 interface Props {
@@ -67,22 +70,22 @@ function NewTopic({props}: Props) {
                     </div>
                     <Separator />
                     <div className="flex items-end justify-between">
-                        <UserInfo />
+                        <UserInfo uid={props?.author} />
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-1">
                                     <ChartNoAxesColumnIncreasing size={14} />
-                                    <p>24</p>
+                                    <p>{props?.viewCounts === null ? 0 : props?.viewCounts}</p>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <MessageCircleMore size={14} />
-                                    <p>0</p>
+                                    <p>{props?.commentCounts === null ? 0 : props?.commentCounts}</p>
                                 </div>
                             </div>
                             <Separator orientation="vertical" className="h-3!" />
                             <div className="flex items-center gap-1">
                                 <Heart size={14} className="text-rose-500" />
-                                <p>1</p>
+                                <p>{props?.likeCounts === null ? 0 : props?.likeCounts}</p>
                             </div>
                         </div>
                     </div>
