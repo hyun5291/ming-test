@@ -124,6 +124,7 @@ function CreateTopic() {
         setLoading(true);
         if (!title || !category || !thumbnail || !content) {
             toast.warning("입력되지 않은 항목이 있습니다. 필수값을 입력해주세요.");
+            setLoading(false);
             return;
         }
         let thumbnailUrl: string | null = null;
