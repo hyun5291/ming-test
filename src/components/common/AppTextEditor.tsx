@@ -12,12 +12,13 @@ interface Props {
 }
 function AppTextEditor({props, onSetContent}: Props) {
     // Creates a new editor instance.
-    const initialLoaded = useRef(false);
+
     const editor = useCreateBlockNote({
         dictionary: ko,
         initialContent: props.length > 0 ? props : undefined,
     });
 
+    const initialLoaded = useRef(false);
     useEffect(() => {
         // 첫 로딩 시에만 replaceBlocks 사용
         if (!initialLoaded.current && props.length > 0) {
