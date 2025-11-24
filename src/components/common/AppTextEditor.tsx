@@ -3,20 +3,30 @@ import {BlockNoteView} from "@blocknote/mantine";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import {ko} from "@blocknote/core/locales";
-import type {Block, BlockNoteEditor} from "@blocknote/core";
+import type {Block} from "@blocknote/core";
+import {useEffect, useRef} from "react";
 
 interface Props {
     props: Block[];
-    onSetContent: (param: Block[]) => void;
+    onSetContent: (params: Block[]) => void;
 }
-// function AppTextEditor({p_editor}: P_type) {
 function AppTextEditor({props, onSetContent}: Props) {
     // Creates a new editor instance.
+    const initialLoaded = useRef(false);
     const editor = useCreateBlockNote({
         dictionary: ko,
+        initialContent: props.length > 0 ? props : undefined,
     });
 
-    return <BlockNoteView editor={editor} className="bg-input/30 min-h-80" onChange={() => onSetContent(editor.document)} />;
+    useEffect(() => {
+        // 첫 로딩 시에만 replaceBlocks 사용
+        if (!initialLoaded.current && props.length > 0) {
+            editor.replaceBlocks(editor.document, props);
+            initialLoaded.current = true;
+        }
+    }, [props, editor]);
+
+    return <BlockNoteView className="bg-input/30 min-h-80" editor={editor} onChange={() => onSetContent(editor.document)} />;
 }
 
 export {AppTextEditor};

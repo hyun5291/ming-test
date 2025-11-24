@@ -13,7 +13,7 @@ import {
 } from "@/components/ui";
 
 import supabase from "@/utils/supabase";
-import {ArrowLeft, Trash2} from "lucide-react";
+import {ArrowLeft, Edit, Trash2} from "lucide-react";
 import {useEffect, useState} from "react";
 import {useParams, useNavigate} from "react-router";
 
@@ -129,6 +129,10 @@ function DetailTopic() {
                         {/* 뒤로 가기 */}
                         <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
                             <ArrowLeft />
+                        </Button>
+                        {/* 수정 */}
+                        <Button variant="outline" size="icon" onClick={() => navigate(`/topic/${topic_id}/edit`)}>
+                            <Edit />
                         </Button>
                         {/* 삭제확인*/}
                         <AlertDialog>

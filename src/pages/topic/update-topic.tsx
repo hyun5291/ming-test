@@ -8,8 +8,9 @@ import {toast} from "sonner";
 import {nanoid} from "nanoid";
 import {useAuthStore} from "@/store/useAuthStore";
 import type {Block} from "@blocknote/core";
+import {useCreateBlockNote} from "@blocknote/react";
 
-function CreateTopic() {
+function UpdateTopic() {
     const [loading, setLoading] = useState(false); //저장로딩용
     const {topic_id} = useParams(); //라우트파람
     const user = useAuthStore((s) => s.user); //스토어
@@ -62,12 +63,13 @@ function CreateTopic() {
 
     //-------------저장버튼 클릭 로직시작//-------------//-------------//-------------//-------------//-------------
     const handleSave = async () => {
-        setLoading(true); //저장처리로딩
         console.log("thumbnail>", (thumbnail as File)?.name);
         if (!title && !category && !thumbnail) {
             toast.warning("입력되지 않은 항목이 있습니다. 필수값을 입력해주세요.");
             return;
         }
+
+        setLoading(true); //저장처리로딩
         //1.파일 업로드 시 supabase의 storage 즉, bucket 폴더에 이미지를 먼저 업로드 한 후
         //이미지가 저장된 bucket 폴더의 경로 url주소를 우리가 관리하고 있는 topics 테이블 thumbnail 컬럼에 문자열 형태
         //즉, string, 타입으로저장(db text)
@@ -138,14 +140,8 @@ function CreateTopic() {
                 if (data) {
                     const parsed = JSON.parse(data[0].content);
                     // parsed가 Block[] 형태이어야 함
-                    // setInitialBlocks(parsed);
-                    // setContent(parsed);
-                    // setTitle(data[0].title);
-                    // setCategory(data[0].category);
-                    // console.log("update>", data[0].category);
-                    // setThumbnail(data[0].thumbnail);
 
-                    setContent(parsed ?? []);
+                    setContent(parsed); //
                     setTitle(data[0].title ?? "");
                     setCategory(data[0].category ?? "");
                     setThumbnail(data[0].thumbnail ?? null);
@@ -165,20 +161,15 @@ function CreateTopic() {
         }
         getTopic();
     }, []);
-    //-------------db에서불러온 블락노트 재생성 //-------------//-------------//-------------
-    // useEffect(() => {
-    //     if (!content || !p_editor) return;
-    //     p_editor.replaceBlocks(p_editor.document, content);
-    // }, [content]);
-    //-------------//-------------//-------------//-------------//-------------//-------------
 
     //-------------발행버튼 로직//-------------//-------------//-------------//-------------//-------------
     const handlePublish = async () => {
-        setLoading(true);
         if (!title || !category || !thumbnail || !content) {
             toast.warning("입력되지 않은 항목이 있습니다. 필수값을 입력해주세요.");
             return;
         }
+
+        setLoading(true);
         let thumbnailUrl: string | null = null;
         if (thumbnail && thumbnail instanceof File) {
             //파일 storage에업로드
@@ -198,7 +189,10 @@ function CreateTopic() {
             }
             console.log("data.publicUrl(create-topic.tsx)", data.publicUrl);
             thumbnailUrl = data.publicUrl;
+        } else {
+            thumbnailUrl = thumbnail;
         }
+        console.log("thumbnailUrl>>>>>>>>>", thumbnailUrl);
 
         //-------------db update 로직//-------------//-------------//-------------//-------------//-------------
         const {data, error} = await supabase
@@ -219,6 +213,7 @@ function CreateTopic() {
             navigate("/");
         }
     };
+
     return (
         <main className="w-full flex-1 flex justify-center">
             {/* 로딩 블러 overlay */}
@@ -339,4 +334,4 @@ function CreateTopic() {
     );
 }
 
-export default CreateTopic;
+export default UpdateTopic;

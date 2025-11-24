@@ -61,12 +61,12 @@ function CreateTopic() {
 
     //-------------저장버튼로직시작//-------------//-------------//-------------//-------------//-------------
     const handleSave = async () => {
-        setLoading(true);
-        console.log("thumbnail>", (thumbnail as File)?.name);
         if (!title && !category && !thumbnail) {
             toast.warning("입력되지 않은 항목이 있습니다. 필수값을 입력해주세요.");
             return;
         }
+
+        setLoading(true);
         //1.파일 업로드 시 supabase의 storage 즉, bucket 폴더에 이미지를 먼저 업로드 한 후
         //이미지가 저장된 bucket 폴더의 경로 url주소를 우리가 관리하고 있는 topics 테이블 thumbnail 컬럼에 문자열 형태
         //즉, string, 타입으로저장(db text)
@@ -121,12 +121,12 @@ function CreateTopic() {
     };
     //-------------발행버튼 로직//-------------//-------------//-------------//-------------//-------------
     const handlePublish = async () => {
-        setLoading(true);
         if (!title || !category || !thumbnail || !content) {
             toast.warning("입력되지 않은 항목이 있습니다. 필수값을 입력해주세요.");
-            setLoading(false);
             return;
         }
+
+        setLoading(true);
         let thumbnailUrl: string | null = null;
         if (thumbnail && thumbnail instanceof File) {
             //파일 storage에업로드
