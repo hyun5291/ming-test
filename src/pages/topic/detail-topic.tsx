@@ -21,6 +21,7 @@ import {useEffect, useState} from "react";
 import {useParams, useNavigate} from "react-router";
 import "@blocknote/mantine/style.css";
 import "@blocknote/core/fonts/inter.css";
+import "@blocknote/core/style.css";
 
 // 우리가 필요한 정보
 // - title: 제목
@@ -169,19 +170,19 @@ function DetailTopic() {
                 <div className="absolute inset-0 bg-black/50"></div>
 
                 <div className="relative z-20 flex flex-col gap-6">
-                    <div className="flex items-center gap-2 mt-6">
+                    <div className="fixed top-14 z-30 flex items-center gap-2 mt-6 ">
                         {/* 뒤로 가기 */}
-                        <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
+                        <Button variant="outline" size="icon" onClick={() => navigate(-1)} className="cursor-pointer">
                             <ArrowLeft />
                         </Button>
                         {user?.id && user.id === topic?.author ? (
                             <>
-                                <Button variant="outline" size="icon" onClick={() => navigate(`/topic/${topic_id}/edit`)}>
+                                <Button variant="outline" size="icon" onClick={() => navigate(`/topic/${topic_id}/edit`)} className="cursor-pointer">
                                     <Edit />
                                 </Button>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="outline" size="icon" className="bg-red-900/50!">
+                                        <Button variant="outline" size="icon" className="bg-red-900/50! cursor-pointer">
                                             <Trash2 />
                                         </Button>
                                     </AlertDialogTrigger>
