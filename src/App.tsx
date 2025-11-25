@@ -34,7 +34,7 @@ function App() {
     const user = useAuthStore((s) => s.user);
     // console.log("App>", user);
 
-    const [nowcate, setNowcate] = useState<string>(""); //선택카테고리
+    const [nowcate, setNowcate] = useState<string>(""); //선택카테고리 기본값공백=전체
     const [topics, setTopics] = useState<Topic[]>([]);
 
     // 1. 전체 항목을 클릭했을 경우, "전체"라는 항목의 value 값을 어떻게 할 것인가? -공백.
@@ -44,7 +44,7 @@ function App() {
     // 5. 검색 기능과의 차별점을 둘 것인가? -묶어서 같이해결
     const handleCategoryChange = (value: string, type: string) => {
         //
-        if (type === "cate" && nowcate === value) return; //리소스아끼기
+        if (type === "cate" && nowcate === value) return; // 리소스아끼기
         if (type === "cate") {
             setNowcate(value);
             fetchTopics(value, type);
