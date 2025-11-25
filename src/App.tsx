@@ -166,7 +166,7 @@ function App() {
                         <p className="text-neutral-500 text-base">새로운 시선으로, 새로운 이야기를 시작하세요. 지금 바로 당신만의 토픽을 작성해보세요.</p>
                     </div>
                     <div className="flex flex-wrap gap-6">
-                        {topics.slice(0, 4).map((data, idx) => (
+                        {topics.map((data, idx) => (
                             <NewTopic key={idx} props={data} />
                         ))}
                     </div>
