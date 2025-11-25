@@ -63,9 +63,8 @@ function App() {
             let query = supabase.from("topics").select("*").eq("status", "PUBLISH").order("created_at", {ascending: false}).limit(4);
             if (type === "cate" && value !== "") query = query.eq("category", value);
             if (type === "typing") {
-                query = query.ilike("title", `%${value}%`);
-                // query = query.or(`title.ilike.%${value}%,content.ilike.%${value}%`);
-                // query = query.or(`title.ilike.%${value}%,content.ilike.%${value}%`);
+                // query = query.ilike("title", `%${value}%`); //제목만
+                query = query.or(`title.ilike.%${value}%,content.ilike.%${value}%`); //title 또는 content둘다.
                 if (nowcate !== "") query = query.eq("category", nowcate);
             }
             console.log("fetch val>", value);
