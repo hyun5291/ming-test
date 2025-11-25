@@ -7,6 +7,7 @@ import {toast} from "sonner";
 import {useAuthStore} from "./store/useAuthStore";
 import supabase from "./utils/supabase";
 import {useEffect, useState} from "react";
+import type {Topic} from "./types";
 
 const CATEGORIES = [
     // { icon: List, label: "전체" },
@@ -26,21 +27,6 @@ const CATEGORIES = [
     //<SelectItem value="design">디자인&middot;일러스트</SelectItem>
     //<SelectItem value="self-development">자기계발</SelectItem>
 ];
-
-interface Topic {
-    id: number;
-    created_at: Date;
-    updated_at: Date;
-    title: string;
-    content: string;
-    category: string;
-    thumbnail: string;
-    status: string;
-    author: string;
-    viewCounts: number;
-    commentCounts: number;
-    likeCounts: number;
-}
 
 function App() {
     const [loading, setLoading] = useState(false);

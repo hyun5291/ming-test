@@ -24,6 +24,7 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/core/style.css";
 import {AppTextEditor} from "@/components/common";
 import {toast} from "sonner";
+import type {Topic} from "@/types";
 
 // 우리가 필요한 정보
 // - title: 제목
@@ -31,21 +32,6 @@ import {toast} from "sonner";
 // - content: 내용
 // - thumbnail: 썸네일
 // - category: 카테고리
-
-interface Topic {
-    id: number;
-    created_at: Date;
-    updated_at: Date;
-    title: string;
-    content: string;
-    category: string;
-    thumbnail: string;
-    status: string;
-    author: string;
-    viewCounts: number;
-    commentCounts: number;
-    likeCounts: number;
-}
 
 function categoryChange(val: string) {
     let res = "";
