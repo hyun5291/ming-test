@@ -3,28 +3,15 @@ import {Card, Separator} from "../ui";
 import {CaseSensitive, ChartNoAxesColumnIncreasing, Heart, MessageCircleMore} from "lucide-react";
 import ElectricBorder from "../ui/ElectricBorder";
 import {useNavigate} from "react-router";
-
-interface Topic {
-    id: number;
-    created_at: Date;
-    updated_at: Date;
-    title: string;
-    content: string;
-    category: string;
-    thumbnail: string;
-    status: string;
-    author: string;
-    viewCounts: number;
-    likeCounts: number;
-    commentCounts: number;
-}
+import type {Topic} from "@/types";
 
 interface Props {
     props?: Topic;
+    color?: string;
 }
 function extractTextfromContent(content?: string, maxChars = 100) {
     if (!content) return;
-    console.log("jsonpars>", JSON.parse(content));
+    // console.log("new-topic.jsonpars>", JSON.parse(content));
     const parsed = typeof content === "string" ? JSON.parse(content) : content;
     if (!Array.isArray(parsed)) {
         console.warn("전달받은 Blocknote의 content데이터타입이 배열이 아닙니다.");
@@ -47,7 +34,7 @@ function extractTextfromContent(content?: string, maxChars = 100) {
     return result;
 }
 
-function NewTopic({props}: Props) {
+function NewTopic({props, color}: Props) {
     const navigate = useNavigate();
     return (
         <ElectricBorder color="#7df9ff" speed={1} chaos={0.5} thickness={2} style={{borderRadius: 16}} className="min-w-[520px] max-w-[520px]">
@@ -58,10 +45,16 @@ function NewTopic({props}: Props) {
                             {/* 제목 */}
                             <div className="flex flex-col">
                                 <CaseSensitive size={16} className="text-neutral-500" />
-                                <p className="font-semibold text-base line-clamp-2">{props ? props?.title : "(title)"}</p>
+                                <p className="font-semibold text-base line-clamp-2">
+                                    {props ? props?.title : "NEW Topic 제목 문구입니다.NEW Topic 제목 문구입니다.NEW Topic 제목 문구입니다.NEW Topic 제목 문구입니다.NEW Topic 제목 문구입니다."}
+                                </p>
                             </div>
                             {/* 본문 */}
-                            <p className="text-neutral-500 line-clamp-3">{props ? extractTextfromContent(props?.content) : "(contents....)"}</p>
+                            <p className="text-neutral-500 line-clamp-3">
+                                {props
+                                    ? extractTextfromContent(props?.content)
+                                    : "NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다."}
+                            </p>
                         </div>
                         {/* 썸넬 */}
                         <div className="w-35 min-w-35 h-35 bg-accent rounded-md">

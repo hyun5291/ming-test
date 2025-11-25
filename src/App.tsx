@@ -6,18 +6,18 @@ import {GradientText} from "./components/ui/shadcn-io/gradient-text";
 import {toast} from "sonner";
 import {useAuthStore} from "./store/useAuthStore";
 import supabase from "./utils/supabase";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import type {Topic} from "./types";
 
 const CATEGORIES = [
-    // { icon: List, label: "전체" },
-    {icon: Lightbulb, label: "인문학"},
-    {icon: Rocket, label: "스타트업"},
-    {icon: CodeXml, label: "IT·프로그래밍"},
-    {icon: Goal, label: "서비스·전략 기획"},
-    {icon: ChartNoAxesCombined, label: "마케팅"},
-    {icon: DraftingCompass, label: "디자인·일러스트"},
-    {icon: Footprints, label: "자기계발"},
+    {icon: List, label: "전체", searchValue: ""},
+    {icon: Lightbulb, label: "인문학", searchValue: "humidity"},
+    {icon: Rocket, label: "스타트업", searchValue: "start-up"},
+    {icon: CodeXml, label: "IT·프로그래밍", searchValue: "programming"},
+    {icon: Goal, label: "서비스·전략 기획", searchValue: "planning"},
+    {icon: ChartNoAxesCombined, label: "마케팅", searchValue: "marketing"},
+    {icon: DraftingCompass, label: "디자인·일러스트", searchValue: "design"},
+    {icon: Footprints, label: "자기계발", searchValue: "self-development"},
 
     //<SelectItem value="humidity">인문학</SelectItem>
     //<SelectItem value="start-up">스타트업</SelectItem>
@@ -32,21 +32,47 @@ function App() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const user = useAuthStore((s) => s.user);
-    console.log("App>", user);
+    // console.log("App>", user);
 
+    const [nowcate, setNowcate] = useState<string>(""); //선택카테고리
     const [topics, setTopics] = useState<Topic[]>([]);
 
-    const fetchTopics = async () => {
+    //1.전체 항목클릭, value값어떻게 -공백.
+    //2.이미선택된항목 또선택하게되면어떻게 -리소스아끼기 리턴
+    //3.도메인 즉, url에 카데고리 value값보여줄것인가 -안보여줌 그냥랜더링(선택시 카데고리 백그라운드 보더)
+    //4.supabase read의 filtering 기능사용할때 어떻게할것인가 -카데고리=eq,검색어는like
+    //5.검색 기능과 차별점둘것인가. -묶어서 같이해결
+    const handleCategoryChange = (value: string, type: string) => {
+        //
+        if (type === "cate" && nowcate === value) return; //리소스아끼기
+        if (type === "cate") {
+            setNowcate(value);
+            fetchTopics(value, type);
+        }
+        if (type === "typing" && value === "") return; //리소스아끼기
+        if (type === "typing") {
+            fetchTopics(value, type);
+        }
+    };
+
+    const fetchTopics = async (value: string, type: string) => {
         try {
-            //
-            const {data, error} = await supabase.from("topics").select("*").eq("status", "PUBLISH").order("created_at", {ascending: false}).limit(4);
+            //const {data, error} = await supabase.from("topics").select("*").order("created_at", {ascending: false}).limit(4).eq("status", "PUBLISH");
+            let query = supabase.from("topics").select("*").eq("status", "PUBLISH").order("created_at", {ascending: false}).limit(4);
+            if (type === "cate" && value !== "") query = query.eq("category", value);
+            if (type === "typing") {
+                query = query.like("title", `%${value}%`);
+                if (nowcate !== "") query = query.eq("category", nowcate);
+            }
+            console.log("fetch val>", value);
+            const {data, error} = await query;
             if (error) {
                 toast.warning(error.message);
                 return;
             }
             if (data) {
                 //
-                console.log("App-data>", data);
+                //console.log("App-data>", data);
                 setTopics(data);
             }
         } catch (err) {
@@ -55,7 +81,7 @@ function App() {
         }
     };
     useEffect(() => {
-        fetchTopics();
+        fetchTopics("", "");
     }, []);
 
     const moveToPage = async () => {
@@ -103,16 +129,26 @@ function App() {
                     <ChevronDown />
                 </div>
                 <div className="flex flex-col gap-2">
-                    <Button className="flex justify-start text-white bg-transparent hover:bg-card hover:text-white hover:pl-6 duration-500 border-2">
+                    {/* <Button className="flex justify-start text-white bg-transparent hover:bg-card hover:text-white hover:pl-6 duration-500">
                         <List />
                         전체
-                    </Button>
+                    </Button> */}
                     {CATEGORIES.map((category, idx) => {
                         const IconComponent = category.icon;
                         return (
-                            <Button key={idx} className="flex justify-start text-neutral-500 bg-transparent hover:bg-card hover:text-white hover:pl-6 duration-500">
+                            <Button
+                                key={idx}
+                                className={`flex justify-start ${
+                                    nowcate === category.searchValue ? "text-white border-2 bg-input/30" : "text-neutral-500 bg-transparent"
+                                }  hover:bg-card hover:text-white hover:pl-6 duration-500 cursor-pointer`}
+                                onClick={() => handleCategoryChange(category.searchValue, "cate")}
+                            >
                                 <IconComponent />
-                                <GradientText text={category.label} gradient="linear-gradient(90deg,#ffffff 0%, #e68ee3 50%, #e0c3fc 100%)" className="font-bold" />
+                                {nowcate === category.searchValue ? (
+                                    <GradientText text={category.label} gradient="linear-gradient(90deg,#ffffff 0%, #e68ee3 50%, #e0c3fc 100%)" className="font-extrabold" />
+                                ) : (
+                                    <GradientText text={category.label} gradient="linear-gradient(90deg,#ffffff 0%, #e68ee3 50%, #e0c3fc 100%)" className="font-bold" />
+                                )}
                             </Button>
                         );
                     })}
@@ -130,7 +166,16 @@ function App() {
                     {/* 검색창 */}
                     <div className="w-full max-w-lg flex items-center gap-2 border py-2 pl-4 pr-3 rounded-full">
                         <Search size={24} className="text-neutral-500 -mr-2" />
-                        <Input placeholder="관심 있는 클래스, 토픽 주제를 검색하세요." className="border-none bg-transparent! focus-visible:ring-0 placeholder:text-base" />
+                        <Input
+                            placeholder="관심 있는 클래스, 토픽 주제를 검색하세요."
+                            className="border-none bg-transparent! focus-visible:ring-0 placeholder:text-base"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleCategoryChange(e.currentTarget.value.replace(/\s+/g, ""), "typing");
+                                    e.currentTarget.value = "";
+                                }
+                            }}
+                        />
                         <Button variant={"secondary"} className="rounded-full">
                             검색
                         </Button>
@@ -148,10 +193,13 @@ function App() {
                         <p className="text-neutral-500 text-base">지금 가장 주목받는 주제들을 살펴보고, 다양한 관점의 인사이트를 얻어보세요.</p>
                     </div>
                     <div className="flex flex-wrap gap-6">
-                        <HotTopic color="#e6b7d9" />
-                        <HotTopic color="#e6b7d9" />
-                        <HotTopic color="#e6b7d9" />
-                        <HotTopic color="#e6b7d9" />
+                        {topics.map((data, idx) => (
+                            <HotTopic key={idx} props={data} color="#e6b7d9" />
+                        ))}
+                        {/* 항상4개를 표시하고싶어서 부족한 개수만큼 NewTopic 렌더링 */}
+                        {Array.from({length: Math.max(4 - topics.length, 0)}).map((_, idx) => (
+                            <HotTopic key={`empty-${idx}`} color="#e6b7d9" />
+                        ))}
                     </div>
                 </section>
                 {/* NEW 토픽 */}
@@ -167,7 +215,7 @@ function App() {
                     </div>
                     <div className="flex flex-wrap gap-6">
                         {topics.map((data, idx) => (
-                            <NewTopic key={idx} props={data} />
+                            <NewTopic key={idx} props={data} color="7df9ff" />
                         ))}
                         {/* 항상4개를 표시하고싶어서 부족한 개수만큼 NewTopic 렌더링 */}
                         {Array.from({length: Math.max(4 - topics.length, 0)}).map((_, idx) => (
