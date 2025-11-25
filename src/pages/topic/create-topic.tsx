@@ -137,11 +137,11 @@ function UpdateTopic() {
             }
             console.log(data);
             if (data) {
-                setLoading(false);
                 toast.warning("저장완료");
             }
         } catch (err) {
             console.error("예외 발생:", err);
+        } finally {
             setLoading(false);
         }
     };
