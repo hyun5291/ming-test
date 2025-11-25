@@ -37,11 +37,11 @@ function App() {
     const [nowcate, setNowcate] = useState<string>(""); //선택카테고리
     const [topics, setTopics] = useState<Topic[]>([]);
 
-    //1.전체 항목클릭, value값어떻게 -공백.
-    //2.이미선택된항목 또선택하게되면어떻게 -리소스아끼기 리턴
-    //3.도메인 즉, url에 카데고리 value값보여줄것인가 -안보여줌 그냥랜더링(선택시 카데고리 백그라운드 보더)
-    //4.supabase read의 filtering 기능사용할때 어떻게할것인가 -카데고리=eq,검색어는like
-    //5.검색 기능과 차별점둘것인가. -묶어서 같이해결
+    // 1. 전체 항목을 클릭했을 경우, "전체"라는 항목의 value 값을 어떻게 할 것인가? -공백.
+    // 2. 이미 선택된 항목에 대해 즉, 선택된 항목 재선택시 어떻게 할 것인가? -리소스아끼기 리턴
+    // 3. 도메인 즉, URL에 카테고리 value 값을 보여줄 것인지 아닌지? -안보여줌 그냥랜더링(선택시 카데고리 백그라운드 보더)
+    // 4. 결국, Supabase Read의 Filtering 기능 사용할 때 어떻게 할 것인가? -카데고리=eq,검색어는like
+    // 5. 검색 기능과의 차별점을 둘 것인가? -묶어서 같이해결
     const handleCategoryChange = (value: string, type: string) => {
         //
         if (type === "cate" && nowcate === value) return; //리소스아끼기
