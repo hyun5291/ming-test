@@ -27,18 +27,33 @@ const CATEGORIES = [
     //<SelectItem value="self-development">자기계발</SelectItem>
 ];
 
+interface Topic {
+    id: number;
+    created_at: Date;
+    updated_at: Date;
+    title: string;
+    content: string;
+    category: string;
+    thumbnail: string;
+    status: string;
+    author: string;
+    viewCounts: number;
+    commentCounts: number;
+    likeCounts: number;
+}
+
 function App() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const user = useAuthStore((s) => s.user);
     console.log("App>", user);
 
-    const [topics, setTopics] = useState<any[]>([]);
+    const [topics, setTopics] = useState<Topic[]>([]);
 
     const fetchTopics = async () => {
         try {
             //
-            const {data, error} = await supabase.from("topics").select("*").eq("status", "PUBLISH").order("created_at", {ascending: false});
+            const {data, error} = await supabase.from("topics").select("*").eq("status", "PUBLISH").order("created_at", {ascending: false}).limit(4);
             if (error) {
                 toast.warning(error.message);
                 return;
@@ -66,8 +81,7 @@ function App() {
             const {data, error} = await supabase
                 .from("topics")
                 .insert([{author: user.id}])
-                .select()
-                .limit(4);
+                .select();
 
             if (error || !data) {
                 console.error("저장실패", error);
