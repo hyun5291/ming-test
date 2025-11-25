@@ -63,11 +63,11 @@ function App() {
             return;
         }
         try {
-            //Supabase 새로운 세션 요청
             const {data, error} = await supabase
                 .from("topics")
                 .insert([{author: user.id}])
-                .select();
+                .select()
+                .limit(4);
 
             if (error || !data) {
                 console.error("저장실패", error);
