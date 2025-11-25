@@ -22,6 +22,7 @@ import {useParams, useNavigate} from "react-router";
 import "@blocknote/mantine/style.css";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/core/style.css";
+import {AppTextEditor} from "@/components/common";
 
 // 우리가 필요한 정보
 // - title: 제목
@@ -223,7 +224,11 @@ function DetailTopic() {
 
             {/* 컨텐*/}
             {/* <div className="mt-1 bg-input/30 p-3 rounded-md">{topic && extractTextfromContent(topic.content)}</div> */}
-            <div className="mt-1 bg-input/30 p-3 rounded-md bn-renderer" dangerouslySetInnerHTML={{__html: html}} />
+            {/* <div className="mt-1 bg-input/30 p-3 rounded-md bn-renderer" dangerouslySetInnerHTML={{__html: html}} /> */}
+            {/* <div className="mt-1 bg-input/30 p-3 rounded-md"></div> */}
+            {/* <AppTextEditor props={topic?.content} readonly={true}/> */}
+
+            <div className="mt-1 rounded-md">{topic && <AppTextEditor props={JSON.parse(topic.content)} readonly={true} />}</div>
 
             <div className="mt-2 bg-input/30 p-3 rounded-md flex items-end justify-between">
                 <UserInfo uid={topic?.author} />

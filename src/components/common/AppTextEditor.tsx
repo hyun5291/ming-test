@@ -5,12 +5,14 @@ import "@blocknote/mantine/style.css";
 import {ko} from "@blocknote/core/locales";
 import type {Block} from "@blocknote/core";
 import {useEffect, useRef} from "react";
+import {readonly} from "zod";
 
 interface Props {
     props: Block[];
-    onSetContent: (params: Block[]) => void;
+    onSetContent?: (params: Block[]) => void;
+    readonly?: boolean;
 }
-function AppTextEditor({props, onSetContent}: Props) {
+function AppTextEditor({props, readonly, onSetContent}: Props) {
     // Creates a new editor instance.
 
     const editor = useCreateBlockNote({
@@ -26,7 +28,19 @@ function AppTextEditor({props, onSetContent}: Props) {
         }
     }, [props, editor]);
 
-    return <BlockNoteView className="bg-input/30 min-h-80" editor={editor} onChange={() => onSetContent(editor.document)} />;
+    return (
+        <BlockNoteView
+            className="bg-input/30 min-h-80"
+            editor={editor}
+            editable={!readonly}
+            onChange={() => {
+                if (!readonly) {
+                    //!readonly =>생성페이지에서접근
+                    onSetContent?.(editor.document);
+                }
+            }}
+        />
+    );
 }
 
 export {AppTextEditor};
