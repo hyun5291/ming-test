@@ -15,10 +15,12 @@ import {
 import {useAuthStore} from "@/store/useAuthStore";
 
 import supabase from "@/utils/supabase";
+import {useCreateBlockNote} from "@blocknote/react";
 import {ArrowLeft, ChartNoAxesColumnIncreasing, Edit, Heart, MessageCircleMore, Trash2} from "lucide-react";
 import {useEffect, useState} from "react";
 import {useParams, useNavigate} from "react-router";
-import {toast} from "sonner";
+import "@blocknote/mantine/style.css";
+import "@blocknote/core/fonts/inter.css";
 
 // 우리가 필요한 정보
 // - title: 제목
@@ -105,8 +107,19 @@ function DetailTopic() {
         }
         getTopic();
     }, [topic_id]);
-    console.log(user?.id);
-
+    //---------블락노트형식의 본문변환//---------//---------//---------
+    const [html, setHtml] = useState("");
+    const editor = useCreateBlockNote();
+    useEffect(() => {
+        if (!topic?.content) return;
+        const render = async () => {
+            const blocks = JSON.parse(topic?.content);
+            const htmlStr = await editor.blocksToFullHTML(blocks);
+            setHtml(htmlStr);
+        };
+        render();
+    }, [topic]);
+    //---------//---------//---------//---------//---------//---------
     const [liked, setLiked] = useState(false);
     const pluseLike = async () => {
         // if (!topic) return;
@@ -208,7 +221,8 @@ function DetailTopic() {
             </div>
 
             {/* 컨텐*/}
-            <div className="mt-1 bg-input/30 p-3 rounded-md">{topic && extractTextfromContent(topic.content)}</div>
+            {/* <div className="mt-1 bg-input/30 p-3 rounded-md">{topic && extractTextfromContent(topic.content)}</div> */}
+            <div className="mt-1 bg-input/30 p-3 rounded-md bn-renderer" dangerouslySetInnerHTML={{__html: html}} />
 
             <div className="mt-2 bg-input/30 p-3 rounded-md flex items-end justify-between">
                 <UserInfo uid={topic?.author} />
