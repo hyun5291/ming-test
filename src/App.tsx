@@ -107,13 +107,13 @@ function App() {
             console.log(data[0]);
             // return;
             if (data) {
-                setLoading(false);
                 toast.warning("토픽작성준비완료.");
                 navigate(`/topic/${data[0].id}/create`);
             }
         } catch (err) {
             console.error("예외 발생:", err);
             toast.warning("예외 발생>" + err);
+        } finally {
             setLoading(false);
         }
     };
