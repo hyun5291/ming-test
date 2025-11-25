@@ -10,7 +10,7 @@ function UserInfo({uid}: UserProps) {
         <div className="flex flex-col">
             <div className="flex items-center gap-1">
                 <BadgeCheck size={14} className="text-green-500 mb-0.5" />
-                <p>{uid ?? "디폴트널값"}</p>
+                <p className="line-clamp-1">{uid ?? "디폴트널값"}</p>
             </div>
             <div className="flex items-center text-neutral-500 text-xs gap-2">
                 <p>IT 및 기술분야</p>

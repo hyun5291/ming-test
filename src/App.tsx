@@ -35,6 +35,7 @@ function App() {
     // console.log("App>", user);
 
     const [nowcate, setNowcate] = useState<string>(""); //선택카테고리 기본값공백=전체
+    const inputRef = useRef<HTMLInputElement>(null); //검색어
     const [topics, setTopics] = useState<Topic[]>([]);
 
     // 1. 전체 항목을 클릭했을 경우, "전체"라는 항목의 value 값을 어떻게 할 것인가? -공백.
@@ -47,6 +48,7 @@ function App() {
         if (type === "cate" && nowcate === value) return; // 리소스아끼기
         if (type === "cate") {
             setNowcate(value);
+            if (inputRef.current) inputRef.current.value = "";
             fetchTopics(value, type);
         }
         if (type === "typing" && value === "") return; //리소스아끼기
@@ -171,6 +173,7 @@ function App() {
                         <Input
                             placeholder="관심 있는 클래스, 토픽 주제를 검색하세요."
                             className="border-none bg-transparent! focus-visible:ring-0 placeholder:text-base"
+                            ref={inputRef}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                     handleCategoryChange(e.currentTarget.value.replace(/\s+/g, ""), "typing");
@@ -178,7 +181,16 @@ function App() {
                                 }
                             }}
                         />
-                        <Button variant={"secondary"} className="rounded-full">
+                        <Button
+                            variant={"secondary"}
+                            className="rounded-full"
+                            onClick={() => {
+                                if (inputRef.current) {
+                                    handleCategoryChange(inputRef.current.value.replace(/\s+/g, ""), "typing");
+                                    inputRef.current.value = ""; // 입력값 초기화
+                                }
+                            }}
+                        >
                             검색
                         </Button>
                     </div>
