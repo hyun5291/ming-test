@@ -20,9 +20,10 @@ interface Topic {
 }
 
 interface Props {
-    props: Topic;
+    props?: Topic;
 }
-function extractTextfromContent(content: string, maxChars = 100) {
+function extractTextfromContent(content?: string, maxChars = 100) {
+    if (!content) return;
     console.log("jsonpars>", JSON.parse(content));
     const parsed = typeof content === "string" ? JSON.parse(content) : content;
     if (!Array.isArray(parsed)) {
@@ -51,21 +52,21 @@ function NewTopic({props}: Props) {
     return (
         <ElectricBorder color="#7df9ff" speed={1} chaos={0.5} thickness={2} style={{borderRadius: 16}} className="min-w-[520px] max-w-[520px]">
             <div className="p-3 opacity-80">
-                <Card className="p-4 gap-4" onClick={() => navigate(`/topic/${props.id}`)}>
+                <Card className="p-4 gap-4" onClick={() => navigate(`/topic/${props ? props?.id : "user"}`)}>
                     <div className="h-fit flex items-center justify-between gap-4">
                         <div className="h-full flex flex-col justify-between">
                             {/* 제목 */}
                             <div className="flex flex-col">
                                 <CaseSensitive size={16} className="text-neutral-500" />
-                                <p className="font-semibold text-base line-clamp-2">{props.title}</p>
+                                <p className="font-semibold text-base line-clamp-2">{props ? props?.title : "(title)"}</p>
                             </div>
                             {/* 본문 */}
-                            <p className="text-neutral-500 line-clamp-3">{extractTextfromContent(props.content)}</p>
+                            <p className="text-neutral-500 line-clamp-3">{props ? extractTextfromContent(props?.content) : "(contents....)"}</p>
                         </div>
                         {/* 썸넬 */}
                         <div className="w-35 min-w-35 h-35 bg-accent rounded-md">
                             {/* <img src="/vite.svg" alt="@SAMPLE_IMAGE" className="w-35 min-w-35 bg-accent rounded-md" /> */}
-                            <img src={props.thumbnail} alt="@SAMPLE_IMAGE" className="w-full h-full bg-accent rounded-md object-cover" />
+                            <img src={props ? props?.thumbnail : "/vite.svg"} alt="@SAMPLE_IMAGE" className="w-full h-full bg-accent rounded-md object-cover" />
                         </div>
                     </div>
                     <Separator />

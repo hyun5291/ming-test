@@ -169,6 +169,10 @@ function App() {
                         {topics.map((data, idx) => (
                             <NewTopic key={idx} props={data} />
                         ))}
+                        {/* 부족한 개수만큼 빈 NewTopic 렌더링 */}
+                        {Array.from({length: Math.max(4 - topics.length, 0)}).map((_, idx) => (
+                            <NewTopic key={`empty-${idx}`} />
+                        ))}
                     </div>
                 </section>
             </div>

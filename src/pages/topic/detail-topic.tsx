@@ -23,6 +23,7 @@ import "@blocknote/mantine/style.css";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/core/style.css";
 import {AppTextEditor} from "@/components/common";
+import {toast} from "sonner";
 
 // 우리가 필요한 정보
 // - title: 제목
@@ -155,6 +156,7 @@ function DetailTopic() {
             console.error("삭제 오류:", error);
             return;
         }
+        toast.warning("삭제완료");
         navigate("/"); // 삭제후홈
     }
 
