@@ -15,7 +15,6 @@ function AppTextEditor({props, onSetContent}: Props) {
 
     const editor = useCreateBlockNote({
         dictionary: ko,
-        initialContent: props?.length > 0 ? props : undefined,
     });
 
     const initialLoaded = useRef(false);
