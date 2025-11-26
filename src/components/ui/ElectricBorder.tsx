@@ -10,15 +10,15 @@ type ElectricBorderProps = PropsWithChildren<{
     style?: CSSProperties;
 }>;
 
+// 색상 HEX -> RGBA 변환
 function hexToRgba(hex: string, alpha = 1): string {
     if (!hex) return `rgba(0,0,0,${alpha})`;
     let h = hex.replace("#", "");
-    if (h.length === 3) {
+    if (h.length === 3)
         h = h
             .split("")
             .map((c) => c + c)
             .join("");
-    }
     const int = parseInt(h, 16);
     const r = (int >> 16) & 255;
     const g = (int >> 8) & 255;
@@ -33,9 +33,9 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
     const rootRef = useRef<HTMLDivElement | null>(null);
     const strokeRef = useRef<HTMLDivElement | null>(null);
 
-    // Safari 최적화를 위해 chaos 제한
+    // 브라우저 감지: Safari 전용 최적화
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const safeChaos = isSafari ? Math.min(chaos, 0.3) : chaos; // Safari는 높은 scale에서 느려짐
+    const safeChaos = isSafari ? Math.min(chaos, 0.3) : chaos; // Safari는 과도한 chaos 값에서 느려짐
 
     const updateAnim = () => {
         const svg = svgRef.current;
@@ -50,40 +50,36 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
         const height = Math.max(1, Math.round(host.clientHeight || host.getBoundingClientRect().height || 0));
 
         const dyAnims = Array.from(svg.querySelectorAll<SVGAnimateElement>('feOffset > animate[attributeName="dy"]'));
+        const dxAnims = Array.from(svg.querySelectorAll<SVGAnimateElement>('feOffset > animate[attributeName="dx"]'));
+
         if (dyAnims.length >= 2) {
             dyAnims[0].setAttribute("values", `${height}; 0`);
             dyAnims[1].setAttribute("values", `0; -${height}`);
         }
-
-        const dxAnims = Array.from(svg.querySelectorAll<SVGAnimateElement>('feOffset > animate[attributeName="dx"]'));
         if (dxAnims.length >= 2) {
             dxAnims[0].setAttribute("values", `${width}; 0`);
             dxAnims[1].setAttribute("values", `0; -${width}`);
         }
 
-        const baseDur = 6;
-        const dur = Math.max(0.001, baseDur / (speed || 1));
+        const dur = Math.max(0.001, 6 / (speed || 1));
         [...dyAnims, ...dxAnims].forEach((a) => a.setAttribute("dur", `${dur}s`));
 
         const disp = svg.querySelector("feDisplacementMap");
-        if (disp) disp.setAttribute("scale", String(30 * (safeChaos || 1))); // Safari 최적화: chaos 낮춤
+        if (disp) disp.setAttribute("scale", String(30 * safeChaos));
 
         const filterEl = svg.querySelector<SVGFilterElement>(`#${CSS.escape(filterId)}`);
         if (filterEl) {
-            // Safari 최적화: filter 영역 줄임 (기존 -200~500% → -50~200%)
+            // Safari 최적화: 필터 영역 줄임
             filterEl.setAttribute("x", "-50%");
             filterEl.setAttribute("y", "-50%");
             filterEl.setAttribute("width", "200%");
             filterEl.setAttribute("height", "200%");
         }
 
-        // JS로 beginElement 반복 호출 제거 (이미 animate repeatCount="indefinite" 있음)
+        // requestAnimationFrame 반복 호출 제거 (SVG animate repeatCount 사용)
     };
 
-    useEffect(() => {
-        updateAnim();
-    }, [speed, chaos]);
-
+    useEffect(() => updateAnim(), [speed, chaos]);
     useLayoutEffect(() => {
         if (!rootRef.current) return;
         const ro = new ResizeObserver(() => updateAnim());
@@ -92,35 +88,13 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
         return () => ro.disconnect();
     }, []);
 
-    const inheritRadius: CSSProperties = {
-        borderRadius: style?.borderRadius ?? "inherit",
-    };
+    // 공통 스타일: borderRadius 상속
+    const inheritRadius: CSSProperties = {borderRadius: style?.borderRadius ?? "inherit"};
 
-    const strokeStyle: CSSProperties = {
-        ...inheritRadius,
-        borderWidth: thickness,
-        borderStyle: "solid",
-        borderColor: color,
-    };
-
-    const glow1Style: CSSProperties = {
-        ...inheritRadius,
-        borderWidth: thickness,
-        borderStyle: "solid",
-        borderColor: hexToRgba(color, 0.6),
-        filter: `blur(${0.5 + thickness * 0.25}px)`,
-        opacity: 0.5,
-    };
-
-    const glow2Style: CSSProperties = {
-        ...inheritRadius,
-        borderWidth: thickness,
-        borderStyle: "solid",
-        borderColor: color,
-        filter: `blur(${2 + thickness * 0.5}px)`,
-        opacity: 0.5,
-    };
-
+    // ----------- Chrome 스타일 (inline style, Tailwind-like) -----------
+    const strokeStyle: CSSProperties = {...inheritRadius, borderWidth: thickness, borderStyle: "solid", borderColor: color};
+    const glow1Style: CSSProperties = {...inheritRadius, borderWidth: thickness, borderStyle: "solid", borderColor: hexToRgba(color, 0.6), filter: `blur(${0.5 + thickness * 0.25}px)`, opacity: 0.5};
+    const glow2Style: CSSProperties = {...inheritRadius, borderWidth: thickness, borderStyle: "solid", borderColor: color, filter: `blur(${2 + thickness * 0.5}px)`, opacity: 0.5};
     const bgGlowStyle: CSSProperties = {
         ...inheritRadius,
         transform: "scale(1.08)",
@@ -130,32 +104,36 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
         background: `linear-gradient(-30deg, ${hexToRgba(color, 0.8)}, transparent, ${color})`,
     };
 
+    // ----------- Safari 스타일 (CSS class + CSS 변수) -----------
+    const vars: CSSProperties = isSafari
+        ? {
+              ["--electric-border-color" as any]: color,
+              ["--eb-border-width" as any]: `${thickness}px`,
+          }
+        : {};
+
     return (
-        <div ref={rootRef} className={"relative isolate " + (className ?? "")} style={style}>
-            <svg ref={svgRef} className="fixed -left-[10000px] -top-[10000px] w-[10px] h-[10px] opacity-[0.001] pointer-events-none" aria-hidden focusable="false">
+        <div ref={rootRef} className={`${isSafari ? "electric-border" : "relative isolate"} ${className ?? ""}`} style={{...vars, ...style}}>
+            {/* SVG 필터 정의는 공통 */}
+            <svg ref={svgRef} className={isSafari ? "eb-svg" : "fixed -left-[10000px] -top-[10000px] w-[10px] h-[10px] opacity-[0.001] pointer-events-none"} aria-hidden focusable="false">
                 <defs>
                     <filter id={filterId} colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
-                        {/* Safari 최적화: numOctaves 낮춤 (10 → 2) */}
-                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise1" seed="1" />
+                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="1" />
                         <feOffset in="noise1" dx="0" dy="0" result="offsetNoise1">
                             <animate attributeName="dy" values="700; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
-
-                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise2" seed="1" />
+                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="1" />
                         <feOffset in="noise2" dx="0" dy="0" result="offsetNoise2">
                             <animate attributeName="dy" values="0; -700" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
-
-                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise1" seed="2" />
+                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="2" />
                         <feOffset in="noise1" dx="0" dy="0" result="offsetNoise3">
                             <animate attributeName="dx" values="490; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
-
-                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise2" seed="2" />
+                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="2" />
                         <feOffset in="noise2" dx="0" dy="0" result="offsetNoise4">
                             <animate attributeName="dx" values="0; -490" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
-
                         <feComposite in="offsetNoise1" in2="offsetNoise2" result="part1" />
                         <feComposite in="offsetNoise3" in2="offsetNoise4" result="part2" />
                         <feBlend in="part1" in2="part2" mode="color-dodge" result="combinedNoise" />
@@ -164,14 +142,25 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
                 </defs>
             </svg>
 
-            <div className="absolute inset-0 pointer-events-none" style={inheritRadius}>
-                <div ref={strokeRef} className="absolute inset-0 box-border" style={strokeStyle} />
-                <div className="absolute inset-0 box-border" style={glow1Style} />
-                <div className="absolute inset-0 box-border" style={glow2Style} />
-                <div className="absolute inset-0" style={bgGlowStyle} />
-            </div>
+            {isSafari ? (
+                // Safari 레이어 구조: CSS class 사용
+                <div className="eb-layers">
+                    <div ref={strokeRef} className="eb-stroke" />
+                    <div className="eb-glow-1" />
+                    <div className="eb-glow-2" />
+                    <div className="eb-background-glow" />
+                </div>
+            ) : (
+                // Chrome 레이어 구조: inline style
+                <div className="absolute inset-0 pointer-events-none" style={inheritRadius}>
+                    <div ref={strokeRef} className="absolute inset-0 box-border" style={strokeStyle} />
+                    <div className="absolute inset-0 box-border" style={glow1Style} />
+                    <div className="absolute inset-0 box-border" style={glow2Style} />
+                    <div className="absolute inset-0" style={bgGlowStyle} />
+                </div>
+            )}
 
-            <div className="relative" style={inheritRadius}>
+            <div className={isSafari ? "eb-content" : "relative"} style={inheritRadius}>
                 {children}
             </div>
         </div>
