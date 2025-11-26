@@ -1,7 +1,7 @@
-import {ChartNoAxesCombined, ChevronDown, CodeXml, DraftingCompass, Footprints, Goal, Icon, Lightbulb, List, PencilLine, Rocket, Search} from "lucide-react";
+import {ChartNoAxesCombined, ChevronDown, CodeXml, Divide, DraftingCompass, Footprints, Goal, Icon, Lightbulb, List, PencilLine, Rocket, Search} from "lucide-react";
 import {Button, Input, Spinner} from "./components/ui";
 import {HotTopic, NewTopic} from "./components/topic";
-import {useNavigate} from "react-router";
+import {useNavigate, useSearchParams} from "react-router";
 import {GradientText} from "./components/ui/shadcn-io/gradient-text";
 import {toast} from "sonner";
 import {useAuthStore} from "./store/useAuthStore";
@@ -38,6 +38,14 @@ function App() {
     const inputRef = useRef<HTMLInputElement>(null); //검색어
     const [topics, setTopics] = useState<Topic[]>([]);
 
+    const [searparams, setSearparams] = useSearchParams();
+    const searcategory = searparams.get("category") || "";
+
+    const [searchInput, onSearchInput] = useState<string>("");
+    const handleSearch = () => {
+        fetchTopics_re(searchInput);
+    };
+
     // 1. 전체 항목을 클릭했을 경우, "전체"라는 항목의 value 값을 어떻게 할 것인가? -공백.
     // 2. 이미 선택된 항목에 대해 즉, 선택된 항목 재선택시 어떻게 할 것인가? -리소스아끼기 리턴
     // 3. 도메인 즉, URL에 카테고리 value 값을 보여줄 것인지 아닌지? -안보여줌 그냥랜더링(선택시 카데고리 백그라운드 보더)
@@ -57,6 +65,15 @@ function App() {
         }
     };
 
+    const handleCategoryChange_re = (val: string) => {
+        //
+        if (val === searcategory) return;
+        if (val === "") setSearparams({});
+        else setSearparams({category: val});
+        console.log("App.searcategory>", searcategory);
+        console.log("App.val>", val);
+    };
+
     const fetchTopics = async (value: string, type: string) => {
         try {
             //const {data, error} = await supabase.from("topics").select("*").order("created_at", {ascending: false}).limit(4).eq("status", "PUBLISH");
@@ -67,7 +84,7 @@ function App() {
                 query = query.or(`title.ilike.%${value}%,content.ilike.%${value}%`); //title 또는 content둘다.
                 if (nowcate !== "") query = query.eq("category", nowcate);
             }
-            console.log("fetch val>", value);
+            console.log("App.fetch val>", value);
             const {data, error} = await query;
             if (error) {
                 toast.warning(error.message);
@@ -83,9 +100,39 @@ function App() {
             throw err;
         }
     };
+
+    const fetchTopics_re = async (searchValue?: string) => {
+        try {
+            const query = supabase.from("topics").select("*").eq("status", "PUBLISH").order("created_at", {ascending: false}).limit(4);
+
+            if (searchValue && searchValue.trim() !== "") {
+                query.like("title", `%${searchValue}%`);
+            }
+
+            if (searcategory && searcategory.trim() !== "") {
+                query.eq("category", searcategory);
+            }
+
+            const {data, error} = await query;
+
+            if (error) {
+                toast.error(error.message);
+                return;
+            }
+
+            if (data) {
+                setTopics(data);
+            }
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    };
+
     useEffect(() => {
-        fetchTopics("", "");
-    }, []);
+        // fetchTopics("", "");
+        fetchTopics_re();
+    }, [searcategory]);
 
     const moveToPage = async () => {
         if (!user) {
@@ -136,21 +183,31 @@ function App() {
                         <List />
                         전체
                     </Button> */}
-                    {CATEGORIES.map((category, idx) => {
-                        const IconComponent = category.icon;
+                    {CATEGORIES.map((item, idx) => {
+                        const IconComponent = item.icon;
+                        const isActive = item.searchValue === searcategory;
                         return (
                             <Button
                                 key={idx}
-                                className={`flex justify-start ${
-                                    nowcate === category.searchValue ? "text-white border-2 bg-input/30" : "text-neutral-500 bg-transparent"
-                                }  hover:bg-card hover:text-white hover:pl-6 duration-500 cursor-pointer`}
-                                onClick={() => handleCategoryChange(category.searchValue, "cate")}
+                                // className={`flex justify-start ${
+                                //     nowcate === item.searchValue ? "text-white border-2 bg-input/30" : "text-neutral-500 bg-transparent"
+                                // }  hover:bg-card hover:text-white hover:pl-6 duration-500 cursor-pointer`}
+                                // onClick={() => handleCategoryChange(category.searchValue, "cate")}
+                                className={`${
+                                    isActive && "pl-6! text-white! bg-card! border-2"
+                                } flex justify-start text-neutral-500 bg-transparent hover:bg-card hover:text-white hover:pl-6 duration-500`}
+                                onClick={() => handleCategoryChange_re(item.searchValue)}
                             >
                                 <IconComponent />
-                                {nowcate === category.searchValue ? (
-                                    <GradientText text={category.label} gradient="linear-gradient(90deg,#ffffff 0%, #e68ee3 50%, #e0c3fc 100%)" className="font-extrabold" />
+                                {/* {nowcate === item.searchValue ? (
+                                    <GradientText text={item.label} gradient="linear-gradient(90deg,#ffffff 0%, #e68ee3 50%, #e0c3fc 100%)" className="font-extrabold" />
                                 ) : (
-                                    <GradientText text={category.label} gradient="linear-gradient(90deg,#ffffff 0%, #e68ee3 50%, #e0c3fc 100%)" className="font-bold" />
+                                    <GradientText text={item.label} gradient="linear-gradient(90deg,#ffffff 0%, #e68ee3 50%, #e0c3fc 100%)" className="font-bold" />
+                                )} */}
+                                {isActive ? (
+                                    <GradientText text={item.label} gradient="linear-gradient(90deg,#ffffff 0%, #e68ee3 50%, #e0c3fc 100%)" className="font-bold" />
+                                ) : (
+                                    <GradientText text={item.label} gradient="linear-gradient(90deg,#ffffff 0%, #e68ee3 50%, #e0c3fc 100%)" className="" />
                                 )}
                             </Button>
                         );
@@ -173,6 +230,7 @@ function App() {
                             placeholder="관심 있는 클래스, 토픽 주제를 검색하세요."
                             className="border-none bg-transparent! focus-visible:ring-0 placeholder:text-base"
                             ref={inputRef}
+                            onChange={(event) => onSearchInput(event.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                     handleCategoryChange(e.currentTarget.value.replace(/\s+/g, ""), "typing");
@@ -183,12 +241,13 @@ function App() {
                         <Button
                             variant={"secondary"}
                             className="rounded-full"
-                            onClick={() => {
-                                if (inputRef.current) {
-                                    handleCategoryChange(inputRef.current.value.replace(/\s+/g, ""), "typing");
-                                    inputRef.current.value = ""; // 입력값 초기화
-                                }
-                            }}
+                            // onClick={() => {
+                            //     if (inputRef.current) {
+                            //         handleCategoryChange(inputRef.current.value.replace(/\s+/g, ""), "typing");
+                            //         inputRef.current.value = ""; // 입력값 초기화
+                            //     }
+                            // }}
+                            onClick={handleSearch}
                         >
                             검색
                         </Button>
@@ -227,6 +286,9 @@ function App() {
                         <p className="text-neutral-500 text-base">새로운 시선으로, 새로운 이야기를 시작하세요. 지금 바로 당신만의 토픽을 작성해보세요.</p>
                     </div>
                     <div className="flex flex-wrap gap-6">
+                        {/* {topics.sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime()).reverse().map((item,idx)=>(<div></div>))} */}
+                        {/* {topics.reverse().map((item,idx)=>(<div></div>))} */}
+                        {/* {[...topics].reverse().map((item,idx)=>(<div></div>))} */}
                         {topics.map((data, idx) => (
                             <NewTopic key={idx} props={data} color="7df9ff" />
                         ))}

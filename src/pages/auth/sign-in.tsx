@@ -61,6 +61,29 @@ function SignIn() {
         }
     };
 
+    //소셜 로그인 (구글)
+    const handleGoogleSignIn = async () => {
+        try {
+            //
+            const {data, error} = await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    redirectTo: `${import.meta.env.VITE_SUPABASE_URL_LOCALHOST}/auth/callback`,
+                    queryParams: {access_type: "offline", prompt: "consent"},
+                },
+            });
+            if (data) {
+                console.log("handleGoogleSignIn>>>>>>>>", data);
+            }
+            if (error) {
+                console.log(error);
+            }
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    };
+
     return (
         <div className="w-full max-w-[1328px] h-full flex items-center justify-center">
             <Card className="w-full max-w-sm border-0 bg-transparent">
@@ -106,7 +129,7 @@ function SignIn() {
                                 <Button type="submit" className="w-full">
                                     로그인
                                 </Button>
-                                <Button variant="outline" className="w-full">
+                                <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
                                     <img src="/icons/google.svg" alt="@GOOGLE" className="w-4" />
                                     구글 로그인
                                 </Button>

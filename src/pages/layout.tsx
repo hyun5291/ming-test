@@ -3,15 +3,14 @@ import {ThemeProvider} from "@/components/theme-provider";
 import {AppFooter, AppHeader} from "@/components/common";
 import {Toaster} from "@/components/ui/sonner";
 import Galaxy from "@/components/backgrounds/Galaxy";
-import sessionStore from "@/store/sessionStore";
 import {useEffect} from "react";
 import supabase from "@/utils/supabase";
-import {Button} from "@/components/ui";
+import {useAuthStore} from "@/store/useAuthStore";
 
 function RootLayout() {
-    // const user = sessionStore((s) => s.user);
-    const session = sessionStore((s) => s.session);
-    const setSession = sessionStore((s) => s.setSession);
+    const user = useAuthStore((s) => s.user);
+    const session = useAuthStore((s) => s.session);
+    const setSession = useAuthStore((s) => s.setSession);
     // console.log("(layout)user>", user);
     // console.log("(layout)user.email>", user?.email);
     console.log("(layout)session>", session);
