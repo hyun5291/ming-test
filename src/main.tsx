@@ -15,7 +15,7 @@ import Chart_test from "./test/Chart_test.tsx"; //챠트테스트
 import UserProfile from "./pages/user/profile.tsx";
 
 //테스트
-import ExampleGetState from "./test/getState_test.tsx";
+// import ExampleGetState from "./test/getState_test.tsx";
 import Toast_test from "./test/Toast_test.tsx";
 import Spinner_test from "./test/Spinner_test.tsx";
 
@@ -28,7 +28,7 @@ createRoot(document.getElementById("root")!).render(
                     <Route index element={<App />} />
                     {/* test */}
                     <Route path="/test/chart_test" element={<Chart_test />} />
-                    <Route path="/test/getState_test" element={<ExampleGetState />} />
+                    {/* <Route path="/test/getState_test" element={<ExampleGetState />} /> */}
                     <Route path="/test/Toast_test" element={<Toast_test />} />
                     <Route path="/test/Spinner_test" element={<Spinner_test />} />
                     {/* mychart */}

@@ -15,7 +15,6 @@ import {
 import {useAuthStore} from "@/store/useAuthStore";
 
 import supabase from "@/utils/supabase";
-import {useCreateBlockNote} from "@blocknote/react";
 import {ArrowLeft, ChartNoAxesColumnIncreasing, Edit, Heart, MessageCircleMore, Trash2} from "lucide-react";
 import {useEffect, useState} from "react";
 import {useParams, useNavigate} from "react-router";
@@ -44,27 +43,6 @@ function categoryChange(val: string) {
     val === "self-development" ? (res = "자기계발") : "";
     return res;
 }
-
-// function extractTextfromContent(content: string) {
-//     const parsed = typeof content === "string" ? JSON.parse(content) : content;
-//     if (!Array.isArray(parsed)) {
-//         console.warn("전달받은 Blocknote의 content데이터타입이 배열이 아닙니다.");
-//         return "-----";
-//     }
-//     const result: React.ReactNode[] = [];
-
-//     for (const block of parsed) {
-//         if (Array.isArray(block.content)) {
-//             for (const child of block.content) {
-//                 if (child.text) {
-//                     result.push(child.text);
-//                     result.push(<br key={Math.random()} />); //에디터 처럼 개행처리
-//                 }
-//             }
-//         }
-//     }
-//     return result;
-// }
 
 function DetailTopic() {
     const user = useAuthStore((s) => s.user); //스토어
@@ -96,44 +74,6 @@ function DetailTopic() {
         }
         getTopic();
     }, [topic_id]);
-    //---------블락노트형식의 본문변환//---------//---------//---------
-    const [html, setHtml] = useState("");
-    const editor = useCreateBlockNote();
-    useEffect(() => {
-        if (!topic?.content) return;
-        const render = async () => {
-            const blocks = JSON.parse(topic?.content);
-            const htmlStr = await editor.blocksToFullHTML(blocks);
-            setHtml(htmlStr);
-        };
-        render();
-    }, [topic]);
-    //---------//---------//---------//---------//---------//---------
-    // const [liked, setLiked] = useState(false);
-    const pluseLike = async () => {
-        // if (!topic) return;
-        // setLoading(true);
-        // const newLikeCount = liked ? (topic.likeCounts ?? 1) - 1 : (topic.likeCounts ?? 0) + 1;
-        // setTopic((prev) => (prev ? {...prev, likeCounts: newLikeCount} : prev));
-        // setLiked(!liked); // 토글
-        // try {
-        //     //Supabase 새로운 세션 요청
-        //     const {data, error} = await supabase.from("topics").update({likeCounts: newLikeCount}).eq("id", topic_id).select();
-        //     if (error || !data) {
-        //         console.error("좋아요실패", error);
-        //         toast.warning("좋아요실패");
-        //         return;
-        //     }
-        //     console.log(data);
-        //     toast.success(liked ? "좋아요 취소" : "좋아요 +1");
-        // } catch (err) {
-        //     console.error("예외 발생:", err);
-        //     setTopic((prev) => (prev ? {...prev, likeCounts: topic.likeCounts} : prev));
-        //     setLiked(liked);
-        // } finally {
-        //     setLoading(false);
-        // }
-    };
 
     // 삭제
     async function deleteTopic() {
@@ -232,7 +172,7 @@ function DetailTopic() {
                         </div>
                     </div>
                     <Separator orientation="vertical" className="h-3!" />
-                    <div className="flex items-center gap-1 cursor-pointer" onClick={pluseLike}>
+                    <div className="flex items-center gap-1 cursor-pointer">
                         <Heart size={14} className="text-rose-500" />
                         <p>{topic?.likeCounts === null ? 0 : topic?.likeCounts}</p>
                     </div>
