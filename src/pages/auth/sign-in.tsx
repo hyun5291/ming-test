@@ -129,7 +129,7 @@ function SignIn() {
                                 <Button type="submit" className="w-full">
                                     로그인
                                 </Button>
-                                <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+                                <Button type="button" variant="outline" className="w-full" onClick={handleGoogleSignIn}>
                                     <img src="/icons/google.svg" alt="@GOOGLE" className="w-4" />
                                     구글 로그인
                                 </Button>

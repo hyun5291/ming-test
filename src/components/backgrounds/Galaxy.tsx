@@ -1,5 +1,5 @@
-import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
-import { useEffect, useRef } from "react";
+import {Renderer, Program, Mesh, Color, Triangle} from "ogl";
+import {useEffect, useRef} from "react";
 
 const vertexShader = `
 attribute vec2 uv;
@@ -189,8 +189,8 @@ export default function Galaxy({
     ...rest
 }) {
     const ctnDom = useRef(null);
-    const targetMousePos = useRef({ x: 0.5, y: 0.5 });
-    const smoothMousePos = useRef({ x: 0.5, y: 0.5 });
+    const targetMousePos = useRef({x: 0.5, y: 0.5});
+    const smoothMousePos = useRef({x: 0.5, y: 0.5});
     const targetMouseActive = useRef(0.0);
     const smoothMouseActive = useRef(0.0);
 
@@ -211,7 +211,7 @@ export default function Galaxy({
             gl.clearColor(0, 0, 0, 1);
         }
 
-        let program;
+        let program: Program;
 
         function resize() {
             const scale = 1;
@@ -228,35 +228,35 @@ export default function Galaxy({
             vertex: vertexShader,
             fragment: fragmentShader,
             uniforms: {
-                uTime: { value: 0 },
+                uTime: {value: 0},
                 uResolution: {
                     value: new Color(gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height),
                 },
-                uFocal: { value: new Float32Array(focal) },
-                uRotation: { value: new Float32Array(rotation) },
-                uStarSpeed: { value: starSpeed },
-                uDensity: { value: density },
-                uHueShift: { value: hueShift },
-                uSpeed: { value: speed },
+                uFocal: {value: new Float32Array(focal)},
+                uRotation: {value: new Float32Array(rotation)},
+                uStarSpeed: {value: starSpeed},
+                uDensity: {value: density},
+                uHueShift: {value: hueShift},
+                uSpeed: {value: speed},
                 uMouse: {
                     value: new Float32Array([smoothMousePos.current.x, smoothMousePos.current.y]),
                 },
-                uGlowIntensity: { value: glowIntensity },
-                uSaturation: { value: saturation },
-                uMouseRepulsion: { value: mouseRepulsion },
-                uTwinkleIntensity: { value: twinkleIntensity },
-                uRotationSpeed: { value: rotationSpeed },
-                uRepulsionStrength: { value: repulsionStrength },
-                uMouseActiveFactor: { value: 0.0 },
-                uAutoCenterRepulsion: { value: autoCenterRepulsion },
-                uTransparent: { value: transparent },
+                uGlowIntensity: {value: glowIntensity},
+                uSaturation: {value: saturation},
+                uMouseRepulsion: {value: mouseRepulsion},
+                uTwinkleIntensity: {value: twinkleIntensity},
+                uRotationSpeed: {value: rotationSpeed},
+                uRepulsionStrength: {value: repulsionStrength},
+                uMouseActiveFactor: {value: 0.0},
+                uAutoCenterRepulsion: {value: autoCenterRepulsion},
+                uTransparent: {value: transparent},
             },
         });
 
-        const mesh = new Mesh(gl, { geometry, program });
-        let animateId;
+        const mesh = new Mesh(gl, {geometry, program});
+        let animateId: number;
 
-        function update(t) {
+        function update(t: number) {
             animateId = requestAnimationFrame(update);
             if (!disableAnimation) {
                 program.uniforms.uTime.value = t * 0.001;
@@ -273,16 +273,16 @@ export default function Galaxy({
             program.uniforms.uMouse.value[1] = smoothMousePos.current.y;
             program.uniforms.uMouseActiveFactor.value = smoothMouseActive.current;
 
-            renderer.render({ scene: mesh });
+            renderer.render({scene: mesh});
         }
         animateId = requestAnimationFrame(update);
         ctn.appendChild(gl.canvas);
 
-        function handleMouseMove(e) {
+        function handleMouseMove(e: {clientX: number; clientY: number}) {
             const rect = ctn.getBoundingClientRect();
             const x = (e.clientX - rect.left) / rect.width;
             const y = 1.0 - (e.clientY - rect.top) / rect.height;
-            targetMousePos.current = { x, y };
+            targetMousePos.current = {x, y};
             targetMouseActive.current = 1.0;
         }
 
