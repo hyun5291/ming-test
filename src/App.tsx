@@ -290,7 +290,7 @@ function App() {
                         {/* {topics.reverse().map((item,idx)=>(<div></div>))} */}
                         {/* {[...topics].reverse().map((item,idx)=>(<div></div>))} */}
                         {topics.map((data, idx) => (
-                            <NewTopic key={idx} props={data} color="7df9ff" />
+                            <NewTopic key={idx} props={data} color="#7df9ff" />
                         ))}
                         {/* 항상4개를 표시하고싶어서 부족한 개수만큼 NewTopic 렌더링 */}
                         {Array.from({length: Math.max(4 - topics.length, 0)}).map((_, idx) => (
