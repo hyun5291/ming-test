@@ -1,4 +1,5 @@
-import React, {useEffect, useId, useLayoutEffect, useRef, CSSProperties, PropsWithChildren} from "react";
+import React, {useEffect, useId, useLayoutEffect, useRef} from "react";
+import type {CSSProperties, PropsWithChildren} from "react";
 
 type ElectricBorderProps = PropsWithChildren<{
     color?: string;
