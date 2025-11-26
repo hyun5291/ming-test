@@ -8,7 +8,7 @@ import supabase from "@/utils/supabase";
 import {useAuthStore} from "@/store/useAuthStore";
 
 function RootLayout() {
-    const user = useAuthStore((s) => s.user);
+    // const user = useAuthStore((s) => s.user);
     const session = useAuthStore((s) => s.session);
     const setSession = useAuthStore((s) => s.setSession);
     // console.log("(layout)user>", user);
