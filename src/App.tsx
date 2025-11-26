@@ -266,11 +266,11 @@ function App() {
                     </div>
                     <div className="flex flex-wrap gap-6">
                         {topics.map((data, idx) => (
-                            <HotTopic key={idx} props={data} color="#e6b7d9" />
+                            <HotTopic key={idx} props={data} />
                         ))}
                         {/* 항상4개를 표시하고싶어서 부족한 개수만큼 NewTopic 렌더링 */}
                         {Array.from({length: Math.max(4 - topics.length, 0)}).map((_, idx) => (
-                            <HotTopic key={`empty-${idx}`} color="#e6b7d9" />
+                            <HotTopic key={`empty-${idx}`} />
                         ))}
                     </div>
                 </section>
@@ -290,7 +290,7 @@ function App() {
                         {/* {topics.reverse().map((item,idx)=>(<div></div>))} */}
                         {/* {[...topics].reverse().map((item,idx)=>(<div></div>))} */}
                         {topics.map((data, idx) => (
-                            <NewTopic key={idx} props={data} color="#7df9ff" />
+                            <NewTopic key={idx} props={data} />
                         ))}
                         {/* 항상4개를 표시하고싶어서 부족한 개수만큼 NewTopic 렌더링 */}
                         {Array.from({length: Math.max(4 - topics.length, 0)}).map((_, idx) => (

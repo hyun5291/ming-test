@@ -7,7 +7,7 @@ import type {Topic} from "@/types";
 
 interface Props {
     props?: Topic;
-    color?: string;
+    // color?: string;
 }
 function extractTextfromContent(content?: string, maxChars = 100) {
     if (!content) return;
@@ -34,7 +34,7 @@ function extractTextfromContent(content?: string, maxChars = 100) {
     return result;
 }
 
-function NewTopic({props, color}: Props) {
+function NewTopic({props}: Props) {
     const navigate = useNavigate();
     return (
         // <ElectricBorder color={color} speed={1} chaos={0.2} thickness={2} style={{borderRadius: 16}} className="min-w-[520px] max-w-[520px]">

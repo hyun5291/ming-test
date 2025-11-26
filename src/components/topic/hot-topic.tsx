@@ -6,7 +6,7 @@ import {useNavigate} from "react-router";
 
 // props 타입 정의
 interface HotTopicProps {
-    color: string; // 여기서 color prop 받음
+    // color: string; // 여기서 color prop 받음
     props?: Topic;
 }
 function extractTextfromContent(content?: string, maxChars = 100) {
@@ -33,7 +33,7 @@ function extractTextfromContent(content?: string, maxChars = 100) {
     }
     return result;
 }
-function HotTopic({color, props}: HotTopicProps) {
+function HotTopic({props}: HotTopicProps) {
     const navigate = useNavigate();
     return (
         // <ElectricBorder color={color} speed={1} chaos={0.5} thickness={3} style={{borderRadius: 16}} className="min-w-[248px] max-w-[248px]">
