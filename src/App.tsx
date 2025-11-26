@@ -227,7 +227,7 @@ function App() {
                     <div className="w-full max-w-lg flex items-center gap-2 border py-2 pl-4 pr-3 rounded-full">
                         <Search size={24} className="text-neutral-500 -mr-2" />
                         <Input
-                            placeholder="관심 있는 클래스, 토픽 주제를 검색하세요."
+                            placeholder="관심 있는 클래스, 토픽 주제를 검색하세요.!!"
                             className="border-none bg-transparent! focus-visible:ring-0 placeholder:text-base"
                             ref={inputRef}
                             onChange={(event) => onSearchInput(event.target.value)}
