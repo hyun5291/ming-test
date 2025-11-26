@@ -33,6 +33,21 @@ function AuthcallbackGoogle() {
         };
 
         loadSession();
+
+        // 실시간 상태 변화 감지
+        const {data: listener} = supabase.auth.onAuthStateChange((_event, session) => {
+            if (session?.user) {
+                setUser({
+                    id: session.user.id,
+                    email: session.user.email as string,
+                    role: session.user.role as string,
+                });
+            } else {
+                setUser(null);
+            }
+        });
+
+        return () => listener.subscription.unsubscribe();
     }, []);
 
     return (
