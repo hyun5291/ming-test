@@ -1,5 +1,4 @@
-import React, {useEffect, useId, useLayoutEffect, useRef} from "react";
-import type {CSSProperties, PropsWithChildren} from "react";
+import React, {useEffect, useId, useLayoutEffect, useRef, CSSProperties, PropsWithChildren} from "react";
 
 type ElectricBorderProps = PropsWithChildren<{
     color?: string;
@@ -10,7 +9,7 @@ type ElectricBorderProps = PropsWithChildren<{
     style?: CSSProperties;
 }>;
 
-// 색상 HEX -> RGBA 변환
+// HEX -> RGBA 변환
 function hexToRgba(hex: string, alpha = 1): string {
     if (!hex) return `rgba(0,0,0,${alpha})`;
     let h = hex.replace("#", "");
@@ -32,10 +31,6 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
     const svgRef = useRef<SVGSVGElement | null>(null);
     const rootRef = useRef<HTMLDivElement | null>(null);
     const strokeRef = useRef<HTMLDivElement | null>(null);
-
-    // 브라우저 감지: Safari 전용 최적화
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const safeChaos = isSafari ? Math.min(chaos, 0.3) : chaos; // Safari는 과도한 chaos 값에서 느려짐
 
     const updateAnim = () => {
         const svg = svgRef.current;
@@ -65,18 +60,15 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
         [...dyAnims, ...dxAnims].forEach((a) => a.setAttribute("dur", `${dur}s`));
 
         const disp = svg.querySelector("feDisplacementMap");
-        if (disp) disp.setAttribute("scale", String(30 * safeChaos));
+        if (disp) disp.setAttribute("scale", String(30 * (chaos || 1)));
 
         const filterEl = svg.querySelector<SVGFilterElement>(`#${CSS.escape(filterId)}`);
         if (filterEl) {
-            // Safari 최적화: 필터 영역 줄임
-            filterEl.setAttribute("x", "-50%");
-            filterEl.setAttribute("y", "-50%");
-            filterEl.setAttribute("width", "200%");
-            filterEl.setAttribute("height", "200%");
+            filterEl.setAttribute("x", "-200%");
+            filterEl.setAttribute("y", "-200%");
+            filterEl.setAttribute("width", "500%");
+            filterEl.setAttribute("height", "500%");
         }
-
-        // requestAnimationFrame 반복 호출 제거 (SVG animate repeatCount 사용)
     };
 
     useEffect(() => updateAnim(), [speed, chaos]);
@@ -88,13 +80,32 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
         return () => ro.disconnect();
     }, []);
 
-    // 공통 스타일: borderRadius 상속
+    // 공통 borderRadius
     const inheritRadius: CSSProperties = {borderRadius: style?.borderRadius ?? "inherit"};
 
-    // ----------- Chrome 스타일 (inline style, Tailwind-like) -----------
-    const strokeStyle: CSSProperties = {...inheritRadius, borderWidth: thickness, borderStyle: "solid", borderColor: color};
-    const glow1Style: CSSProperties = {...inheritRadius, borderWidth: thickness, borderStyle: "solid", borderColor: hexToRgba(color, 0.6), filter: `blur(${0.5 + thickness * 0.25}px)`, opacity: 0.5};
-    const glow2Style: CSSProperties = {...inheritRadius, borderWidth: thickness, borderStyle: "solid", borderColor: color, filter: `blur(${2 + thickness * 0.5}px)`, opacity: 0.5};
+    // -------- Chrome / Safari 통합 inline style --------
+    const strokeStyle: CSSProperties = {
+        ...inheritRadius,
+        borderWidth: thickness,
+        borderStyle: "solid",
+        borderColor: color,
+    };
+    const glow1Style: CSSProperties = {
+        ...inheritRadius,
+        borderWidth: thickness,
+        borderStyle: "solid",
+        borderColor: hexToRgba(color, 0.6),
+        filter: `blur(${0.5 + thickness * 0.25}px)`,
+        opacity: 0.5,
+    };
+    const glow2Style: CSSProperties = {
+        ...inheritRadius,
+        borderWidth: thickness,
+        borderStyle: "solid",
+        borderColor: color,
+        filter: `blur(${2 + thickness * 0.5}px)`,
+        opacity: 0.5,
+    };
     const bgGlowStyle: CSSProperties = {
         ...inheritRadius,
         transform: "scale(1.08)",
@@ -104,63 +115,49 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
         background: `linear-gradient(-30deg, ${hexToRgba(color, 0.8)}, transparent, ${color})`,
     };
 
-    // ----------- Safari 스타일 (CSS class + CSS 변수) -----------
-    const vars: CSSProperties = isSafari
-        ? {
-              ["--electric-border-color" as any]: color,
-              ["--eb-border-width" as any]: `${thickness}px`,
-          }
-        : {};
-
     return (
-        <div ref={rootRef} className={`${isSafari ? "electric-border" : "relative isolate"} ${className ?? ""}`} style={{...vars, ...style}}>
-            {/* SVG 필터 정의는 공통 */}
-            <svg ref={svgRef} className={isSafari ? "eb-svg" : "fixed -left-[10000px] -top-[10000px] w-[10px] h-[10px] opacity-[0.001] pointer-events-none"} aria-hidden focusable="false">
+        <div ref={rootRef} className={"relative isolate " + (className ?? "")} style={style}>
+            {/* SVG 필터 정의 */}
+            <svg ref={svgRef} className="fixed -left-[10000px] -top-[10000px] w-[10px] h-[10px] opacity-[0.001] pointer-events-none" aria-hidden focusable="false">
                 <defs>
                     <filter id={filterId} colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
                         <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="1" />
                         <feOffset in="noise1" dx="0" dy="0" result="offsetNoise1">
                             <animate attributeName="dy" values="700; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
+
                         <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="1" />
                         <feOffset in="noise2" dx="0" dy="0" result="offsetNoise2">
                             <animate attributeName="dy" values="0; -700" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
+
                         <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="2" />
                         <feOffset in="noise1" dx="0" dy="0" result="offsetNoise3">
                             <animate attributeName="dx" values="490; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
+
                         <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="2" />
                         <feOffset in="noise2" dx="0" dy="0" result="offsetNoise4">
                             <animate attributeName="dx" values="0; -490" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
+
                         <feComposite in="offsetNoise1" in2="offsetNoise2" result="part1" />
                         <feComposite in="offsetNoise3" in2="offsetNoise4" result="part2" />
                         <feBlend in="part1" in2="part2" mode="color-dodge" result="combinedNoise" />
-                        <feDisplacementMap in="SourceGraphic" in2="combinedNoise" scale={30 * safeChaos} xChannelSelector="R" yChannelSelector="B" />
+                        <feDisplacementMap in="SourceGraphic" in2="combinedNoise" scale={30 * chaos} xChannelSelector="R" yChannelSelector="B" />
                     </filter>
                 </defs>
             </svg>
 
-            {isSafari ? (
-                // Safari 레이어 구조: CSS class 사용
-                <div className="eb-layers">
-                    <div ref={strokeRef} className="eb-stroke" />
-                    <div className="eb-glow-1" />
-                    <div className="eb-glow-2" />
-                    <div className="eb-background-glow" />
-                </div>
-            ) : (
-                // Chrome 레이어 구조: inline style
-                <div className="absolute inset-0 pointer-events-none" style={inheritRadius}>
-                    <div ref={strokeRef} className="absolute inset-0 box-border" style={strokeStyle} />
-                    <div className="absolute inset-0 box-border" style={glow1Style} />
-                    <div className="absolute inset-0 box-border" style={glow2Style} />
-                    <div className="absolute inset-0" style={bgGlowStyle} />
-                </div>
-            )}
+            {/* 모든 브라우저 동일하게 inline style로 레이어 */}
+            <div className="absolute inset-0 pointer-events-none" style={inheritRadius}>
+                <div ref={strokeRef} className="absolute inset-0 box-border" style={strokeStyle} />
+                <div className="absolute inset-0 box-border" style={glow1Style} />
+                <div className="absolute inset-0 box-border" style={glow2Style} />
+                <div className="absolute inset-0" style={bgGlowStyle} />
+            </div>
 
-            <div className={isSafari ? "eb-content" : "relative"} style={inheritRadius}>
+            <div className="relative" style={inheritRadius}>
                 {children}
             </div>
         </div>
