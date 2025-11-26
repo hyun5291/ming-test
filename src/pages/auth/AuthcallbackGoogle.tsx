@@ -1,13 +1,13 @@
-import {Spinner} from "@/components/ui";
+// import {Spinner} from "@/components/ui";
 import {useAuthStore} from "@/store/useAuthStore";
 import supabase from "@/utils/supabase";
 import {useEffect} from "react";
-import {useNavigate} from "react-router";
+// import {useNavigate} from "react-router";
 
 function AuthcallbackGoogle() {
     const setUser = useAuthStore((s) => s.setUser);
     const setSession = useAuthStore((s) => s.setSession);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     useEffect(() => {
         const loadSession = async () => {
