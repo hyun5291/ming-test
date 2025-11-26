@@ -61,9 +61,9 @@ function SignUp() {
 
     const navigate = useNavigate();
     // 필수 동의항목 상태값
-    const [serviceAgreed, setServiceAgreed] = useState<boolean>(true); // 서비스 이용약관 동의 여부
-    const [privacyAgreed, setPrivacyAgreed] = useState<boolean>(true); // 개인정보 수집 및 이용동의 여부
-    const [marketingAgreed, setMarketingAgreed] = useState<boolean>(true); // 마케팅 및 광고 수신 동의 여부
+    const [serviceAgreed, setServiceAgreed] = useState<boolean>(false); // 서비스 이용약관 동의 여부
+    const [privacyAgreed, setPrivacyAgreed] = useState<boolean>(false); // 개인정보 수집 및 이용동의 여부
+    const [marketingAgreed, setMarketingAgreed] = useState<boolean>(false); // 마케팅 및 광고 수신 동의 여부
 
     // 일반 회원가입
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -71,7 +71,6 @@ function SignUp() {
             toast.warning("잠깐! 필수 동의가 아직 완료되지 않았어요!");
             return;
         }
-
         try {
             const {
                 data: {user, session},
@@ -167,10 +166,10 @@ function SignUp() {
                                 {/* 서비스 이용약관 동의 */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Checkbox className="w-[18px] h-[18px]" />
+                                        <Checkbox className="w-[18px] h-[18px]" checked={serviceAgreed} onCheckedChange={(checked) => setServiceAgreed(!!checked)} />
                                         <p>서비스 이용약관 동의</p>
                                     </div>
-                                    <Button variant={"link"} className="p-0! gap-1 text-xs">
+                                    <Button type="button" variant={"link"} className="p-0! gap-1 text-xs">
                                         자세히
                                         <ChevronRight />
                                     </Button>
@@ -178,10 +177,10 @@ function SignUp() {
                                 {/* 개인정보 수집 및 이용동의 */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Checkbox className="w-[18px] h-[18px]" />
+                                        <Checkbox className="w-[18px] h-[18px]" checked={privacyAgreed} onCheckedChange={(checked) => setPrivacyAgreed(!!checked)} />
                                         <p>개인정보 수집 및 이용동의</p>
                                     </div>
-                                    <Button variant={"link"} className="p-0! gap-1 text-xs">
+                                    <Button type="button" variant={"link"} className="p-0! gap-1 text-xs">
                                         자세히
                                         <ChevronRight />
                                     </Button>
@@ -194,10 +193,10 @@ function SignUp() {
                                 {/* 서비스 이용약관 동의 */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Checkbox className="w-[18px] h-[18px]" />
+                                        <Checkbox className="w-[18px] h-[18px]" checked={marketingAgreed} onCheckedChange={(checked) => setMarketingAgreed(!!checked)} />
                                         <p>마케팅 및 광고 수신 동의</p>
                                     </div>
-                                    <Button variant={"link"} className="p-0! gap-1 text-xs">
+                                    <Button type="button" variant={"link"} className="p-0! gap-1 text-xs">
                                         자세히
                                         <ChevronRight />
                                     </Button>
