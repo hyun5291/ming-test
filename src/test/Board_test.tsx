@@ -1,6 +1,6 @@
 // App.tsx
-import React, { useState, useEffect } from "react"; // React 라이브러리와 상태관리(useState), 생명주기(useEffect) 훅을 가져옴
-import { createClient, SupabaseClient } from "@supabase/supabase-js"; // Supabase 클라이언트 생성 함수와 타입을 가져옴
+import React, {useState, useEffect} from "react"; // React 라이브러리와 상태관리(useState), 생명주기(useEffect) 훅을 가져옴
+import {createClient, SupabaseClient} from "@supabase/supabase-js"; // Supabase 클라이언트 생성 함수와 타입을 가져옴
 import axios from "axios"; // HTTP 요청 라이브러리, Google Drive API 호출용
 
 // ----------------------------
@@ -73,10 +73,10 @@ export default function App() {
         // Supabase posts 테이블에서 전체 게시글 가져오기
         // .select("*") → 모든 컬럼 선택
         // .order("created_at", { ascending: false }) → 최신순 정렬
-        const { data, error } = await supabase
+        const {data, error} = await supabase
             .from("posts") // 테이블 이름만 지정, Client 타입 덕분에 Post 타입 추론
             .select("*")
-            .order("created_at", { ascending: false });
+            .order("created_at", {ascending: false});
 
         if (error) {
             // 오류 발생 시 콘솔 출력
@@ -147,29 +147,29 @@ export default function App() {
         }
 
         // Supabase posts 테이블에 게시글 삽입
-        const { data, error } = await supabase
-            .from("posts") // 테이블 이름만 지정
-            .insert([
-                {
-                    title, // 입력 제목
-                    content, // 입력 내용
-                    file_url: fileLink, // 업로드된 파일 링크
-                },
-            ]);
+        // const { data, error } = await supabase
+        //     .from("posts") // 테이블 이름만 지정
+        //     .insert([
+        //         {
+        //             title, // 입력 제목
+        //             content, // 입력 내용
+        //             file_url: fileLink, // 업로드된 파일 링크
+        //         },
+        //     ]);
 
-        if (error) {
-            // 삽입 실패 시 콘솔 출력 및 알림
-            console.error("Error inserting post:", error);
-            alert("Failed to create post");
-        } else {
-            // 성공 시 입력 필드 초기화
-            setTitle("");
-            setContent("");
-            setFile(null);
+        // if (error) {
+        //     // 삽입 실패 시 콘솔 출력 및 알림
+        //     console.error("Error inserting post:", error);
+        //     alert("Failed to create post");
+        // } else {
+        //     // 성공 시 입력 필드 초기화
+        //     setTitle("");
+        //     setContent("");
+        //     setFile(null);
 
-            // 게시글 목록 재갱신
-            fetchPosts();
-        }
+        //     // 게시글 목록 재갱신
+        //     fetchPosts();
+        // }
 
         setLoading(false); // 로딩 상태 종료
     };
@@ -178,11 +178,11 @@ export default function App() {
     // JSX 렌더링
     // ----------------------------
     return (
-        <div style={{ maxWidth: "600px", margin: "auto", padding: "20px" }}>
+        <div style={{maxWidth: "600px", margin: "auto", padding: "20px"}}>
             <h1>React + Supabase + Google Drive 게시판</h1>
 
             {/* 게시글 작성 폼 */}
-            <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+            <form onSubmit={handleSubmit} style={{marginBottom: "20px"}}>
                 {/* 제목 입력 */}
                 <input
                     type="text"
@@ -190,7 +190,7 @@ export default function App() {
                     value={title} // React state와 연결
                     onChange={(e) => setTitle(e.target.value)} // 입력값 변경 시 상태 업데이트
                     required
-                    style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
+                    style={{width: "100%", marginBottom: "10px", padding: "8px"}}
                 />
                 {/* 내용 입력 */}
                 <textarea
@@ -198,7 +198,7 @@ export default function App() {
                     value={content} // React state와 연결
                     onChange={(e) => setContent(e.target.value)} // 입력값 변경 시 상태 업데이트
                     required
-                    style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
+                    style={{width: "100%", marginBottom: "10px", padding: "8px"}}
                 />
                 {/* 파일 선택 */}
                 <input
@@ -208,7 +208,7 @@ export default function App() {
                             setFile(e.target.files[0]); // 선택된 파일 상태에 저장
                         }
                     }}
-                    style={{ marginBottom: "10px" }}
+                    style={{marginBottom: "10px"}}
                 />
                 {/* 제출 버튼 */}
                 <button type="submit" disabled={loading}>
@@ -221,7 +221,7 @@ export default function App() {
                 {posts.map((post) => (
                     <div
                         key={post.id} // React에서 리스트 렌더링 시 key 필요
-                        style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}
+                        style={{border: "1px solid #ccc", padding: "10px", marginBottom: "10px"}}
                     >
                         <h3>{post.title}</h3>
                         <p>{post.content}</p>

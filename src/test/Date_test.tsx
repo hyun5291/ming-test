@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import supabase from "@/utils/supabase";
-import { DateTime } from "luxon";
+import {DateTime} from "luxon";
 
 function App() {
     const [topics, setTopics] = useState<any[]>([]);
 
     async function getTodos() {
         try {
-            const { data, error } = await supabase.from("topics").select("*");
+            const {data, error} = await supabase.from("topics").select("*");
 
             if (error) {
                 return [];
@@ -31,7 +31,7 @@ function App() {
 
     const formatAbsoluteAndRelative = (isoString: string) => {
         // KST 기준으로 변환
-        const dt = DateTime.fromISO(isoString, { zone: "utc" }).setZone("Asia/Seoul");
+        const dt = DateTime.fromISO(isoString, {zone: "utc"}).setZone("Asia/Seoul");
 
         // 절대시간 포맷
         const absolute = dt.toFormat("yyyy-MM-dd HH:mm:ss");
@@ -46,23 +46,23 @@ function App() {
         const minutes = Math.floor(diff.minutes);
 
         // 상대시간
-        const relative = dt.toRelative({ locale: "ko" }); // ko,ja,fr,en // ex ${relative} : (1일 전)  //(47시간59분전까지 1일 전)
+        // const relative = dt.toRelative({locale: "ko"}); // ko,ja,fr,en // ex ${relative} : (1일 전)  //(47시간59분전까지 1일 전)
 
         return `${absolute} (${days}일 ${hours}시간 ${minutes}분 전)`;
     };
 
-    const formatAbsoluteAndRelative_days = (isoString: string) => {
-        // UTC → KST 변환
-        const dt = DateTime.fromISO(isoString, { zone: "utc" }).setZone("Asia/Seoul");
+    // const formatAbsoluteAndRelative_days = (isoString: string) => {
+    //     // UTC → KST 변환
+    //     const dt = DateTime.fromISO(isoString, { zone: "utc" }).setZone("Asia/Seoul");
 
-        // 절대시간 포맷
-        const absolute = dt.toFormat("yyyy-MM-dd HH:mm:ss");
+    //     // 절대시간 포맷
+    //     const absolute = dt.toFormat("yyyy-MM-dd HH:mm:ss");
 
-        // 상대시간
-        const relative = dt.toRelative({ locale: "ko" }); // ko,ja,fr,en
+    //     // 상대시간
+    //     const relative = dt.toRelative({ locale: "ko" }); // ko,ja,fr,en
 
-        return `${absolute} (${relative})`;
-    };
+    //     return `${absolute} (${relative})`;
+    // };
 
     return (
         <div>

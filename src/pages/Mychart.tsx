@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import {useEffect, useMemo, useState} from "react";
 import supabase from "@/utils/supabase";
-import { DateTime } from "luxon";
-import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
+import {DateTime} from "luxon";
+import {CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis} from "recharts";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useForm} from "react-hook-form";
+import {z} from "zod";
 
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import {Input} from "@/components/ui/input";
 
 import {
     AlertDialog,
@@ -31,7 +31,7 @@ const formSchema = z.object({
 
 const formatAbsoluteAndRelative = (isoString: string) => {
     // KST 기준으로 변환
-    const dt = DateTime.fromISO(isoString, { zone: "utc" }).setZone("Asia/Seoul");
+    const dt = DateTime.fromISO(isoString, {zone: "utc"}).setZone("Asia/Seoul");
 
     // 절대시간 포맷
     // const absolute = dt.toFormat("yyyy-MM-dd HH:mm:ss");
@@ -39,16 +39,16 @@ const formatAbsoluteAndRelative = (isoString: string) => {
     const absolute = dt.toFormat("yy-MM-dd");
 
     // 현재 시간
-    const now = DateTime.now().setZone("Asia/Seoul");
+    // const now = DateTime.now().setZone("Asia/Seoul");
 
     // 시간과 분 차이 계산
-    const diff = now.diff(dt, ["days", "hours", "minutes"]);
-    const days = Math.floor(diff.days);
-    const hours = Math.floor(diff.hours);
-    const minutes = Math.floor(diff.minutes);
+    // const diff = now.diff(dt, ["days", "hours", "minutes"]);
+    // const days = Math.floor(diff.days);
+    // const hours = Math.floor(diff.hours);
+    // const minutes = Math.floor(diff.minutes);
 
-    // 상대시간
-    const relative = dt.toRelative({ locale: "ko" }); // ko,ja,fr,en // ex ${relative} : (1일 전)  //(47시간59분전까지 1일 전)
+    // // 상대시간
+    // const relative = dt.toRelative({ locale: "ko" }); // ko,ja,fr,en // ex ${relative} : (1일 전)  //(47시간59분전까지 1일 전)
     // const ret_str = `${absolute} (${days}일 ${hours}시간 ${minutes}분 전)`;
     const ret_str = `${absolute} `;
 
@@ -56,7 +56,7 @@ const formatAbsoluteAndRelative = (isoString: string) => {
 };
 
 // 커스텀 Tooltip 컴포넌트
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({active, payload}: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
@@ -86,7 +86,7 @@ function Mychart() {
 
     async function getTodos() {
         try {
-            const { data, error } = await supabase.from("graph").select("*").order("id", { ascending: true });
+            const {data, error} = await supabase.from("graph").select("*").order("id", {ascending: true});
 
             if (error) {
                 return [];
@@ -111,22 +111,22 @@ function Mychart() {
 
     const chartData = useMemo(() => {
         return tb_data.map((item, idx) => ({
-            date: DateTime.fromISO(item.created_at, { zone: "utc" }).setZone("Asia/Seoul").toFormat("yyyy MM-dd HH:mm") + " (" + idx + ")",
+            date: DateTime.fromISO(item.created_at, {zone: "utc"}).setZone("Asia/Seoul").toFormat("yyyy MM-dd HH:mm") + " (" + idx + ")",
             amount: item.amount,
-            tooltip: DateTime.fromISO(item.created_at, { zone: "utc" }).setZone("Asia/Seoul").toFormat("yyyy-MM-dd HH:mm:ss"),
+            tooltip: DateTime.fromISO(item.created_at, {zone: "utc"}).setZone("Asia/Seoul").toFormat("yyyy-MM-dd HH:mm:ss"),
         }));
     }, [tb_data]);
 
     const handleInsert = async (val: any) => {
         console.log("handleInsert");
 
-        const { data, error } = await supabase.from("graph").insert([{ amount: val }]);
+        const {data, error} = await supabase.from("graph").insert([{amount: val}]);
 
         if (error) {
             console.error(error);
             alert("등록 실패");
             return false;
-        } else {
+        } else if (data) {
             // 등록 성공하면 상태 업데이트
             const updatedData = await getTodos();
             setTb_data(updatedData);
@@ -136,7 +136,7 @@ function Mychart() {
 
     const handleDelete = async (val: any, e: any) => {
         console.log("handleDelete>", e);
-        const { error } = await supabase.from("graph").delete().eq("id", val);
+        const {error} = await supabase.from("graph").delete().eq("id", val);
         if (error) {
             console.error(error);
             alert("삭제 실패");
@@ -149,7 +149,7 @@ function Mychart() {
         }
     };
 
-    const CustomXAxisTick = ({ x, y, payload }: any) => {
+    const CustomXAxisTick = ({x, y, payload}: any) => {
         const MAX_CHAR_PER_LINE = 5; // 한 줄 최대 글자 수
         const value: string = payload.value;
 
@@ -187,7 +187,7 @@ function Mychart() {
                         <FormField
                             control={form.control}
                             name="username"
-                            render={({ field }) => (
+                            render={({field}) => (
                                 <FormItem className="">
                                     <FormLabel className="sr-only">Username</FormLabel> {/* 화면에는 안보이게 HTML 폼 표준 준수<label>은 <input>과 연동되어야 함*/}
                                     <FormControl>
@@ -225,7 +225,7 @@ function Mychart() {
                 </form>
             </Form>
 
-            <LineChart width={1200} height={500} data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <LineChart width={1200} height={500} data={chartData} margin={{top: 20, right: 30, left: 20, bottom: 5}}>
                 <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
                 {/* <XAxis dataKey="date" /> */}
                 <XAxis

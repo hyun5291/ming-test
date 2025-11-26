@@ -188,7 +188,7 @@ export default function Galaxy({
     transparent = true,
     ...rest
 }) {
-    const ctnDom = useRef(null);
+    const ctnDom = useRef<HTMLDivElement>(null);
     const targetMousePos = useRef({x: 0.5, y: 0.5});
     const smoothMousePos = useRef({x: 0.5, y: 0.5});
     const targetMouseActive = useRef(0.0);

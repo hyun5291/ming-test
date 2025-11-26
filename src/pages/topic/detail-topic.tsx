@@ -45,26 +45,26 @@ function categoryChange(val: string) {
     return res;
 }
 
-function extractTextfromContent(content: string) {
-    const parsed = typeof content === "string" ? JSON.parse(content) : content;
-    if (!Array.isArray(parsed)) {
-        console.warn("전달받은 Blocknote의 content데이터타입이 배열이 아닙니다.");
-        return "-----";
-    }
-    const result: React.ReactNode[] = [];
+// function extractTextfromContent(content: string) {
+//     const parsed = typeof content === "string" ? JSON.parse(content) : content;
+//     if (!Array.isArray(parsed)) {
+//         console.warn("전달받은 Blocknote의 content데이터타입이 배열이 아닙니다.");
+//         return "-----";
+//     }
+//     const result: React.ReactNode[] = [];
 
-    for (const block of parsed) {
-        if (Array.isArray(block.content)) {
-            for (const child of block.content) {
-                if (child.text) {
-                    result.push(child.text);
-                    result.push(<br key={Math.random()} />); //에디터 처럼 개행처리
-                }
-            }
-        }
-    }
-    return result;
-}
+//     for (const block of parsed) {
+//         if (Array.isArray(block.content)) {
+//             for (const child of block.content) {
+//                 if (child.text) {
+//                     result.push(child.text);
+//                     result.push(<br key={Math.random()} />); //에디터 처럼 개행처리
+//                 }
+//             }
+//         }
+//     }
+//     return result;
+// }
 
 function DetailTopic() {
     const user = useAuthStore((s) => s.user); //스토어
@@ -109,7 +109,7 @@ function DetailTopic() {
         render();
     }, [topic]);
     //---------//---------//---------//---------//---------//---------
-    const [liked, setLiked] = useState(false);
+    // const [liked, setLiked] = useState(false);
     const pluseLike = async () => {
         // if (!topic) return;
         // setLoading(true);

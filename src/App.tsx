@@ -1,4 +1,4 @@
-import {ChartNoAxesCombined, ChevronDown, CodeXml, Divide, DraftingCompass, Footprints, Goal, Icon, Lightbulb, List, PencilLine, Rocket, Search} from "lucide-react";
+import {ChartNoAxesCombined, ChevronDown, CodeXml, DraftingCompass, Footprints, Goal, Lightbulb, List, PencilLine, Rocket, Search} from "lucide-react";
 import {Button, Input, Spinner} from "./components/ui";
 import {HotTopic, NewTopic} from "./components/topic";
 import {useNavigate, useSearchParams} from "react-router";

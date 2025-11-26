@@ -1,5 +1,4 @@
 import {useState} from "react";
-import {Card} from "@/components/ui/card";
 import {Spinner} from "@/components/ui/spinner";
 import {toast} from "sonner";
 

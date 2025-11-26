@@ -1,7 +1,7 @@
 import {Spinner} from "@/components/ui";
 import {useAuthStore} from "@/store/useAuthStore";
 import supabase from "@/utils/supabase";
-import React, {useEffect} from "react";
+import {useEffect} from "react";
 import {useNavigate} from "react-router";
 
 function AuthcallbackGoogle() {
@@ -26,6 +26,9 @@ function AuthcallbackGoogle() {
 
                 // 로그인 후 원하는 페이지로 이동
                 navigate("/");
+            }
+            if (error) {
+                console.log(error);
             }
         };
 
