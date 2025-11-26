@@ -36,7 +36,7 @@ function extractTextfromContent(content?: string, maxChars = 100) {
 function HotTopic({color, props}: HotTopicProps) {
     const navigate = useNavigate();
     return (
-        <ElectricBorder color={color} speed={1} chaos={0.2} thickness={3} style={{borderRadius: 16}} className="min-w-[248px] max-w-[248px]">
+        <ElectricBorder color={color} speed={1} chaos={0.5} thickness={3} style={{borderRadius: 16}} className="min-w-[248px] max-w-[248px]">
             <div className=" p-3 opacity-80">
                 <Card className="p-0 gap-4 border-0 bg-transparent" onClick={() => navigate(`/topic/${props ? props?.id : "user"}`)}>
                     <div className="relative">
