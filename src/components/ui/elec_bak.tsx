@@ -1,6 +1,5 @@
 import React, {useEffect, useId, useLayoutEffect, useRef} from "react";
 import type {CSSProperties, PropsWithChildren} from "react";
-
 type ElectricBorderProps = PropsWithChildren<{
     color?: string;
     speed?: number;
@@ -33,10 +32,6 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
     const rootRef = useRef<HTMLDivElement | null>(null);
     const strokeRef = useRef<HTMLDivElement | null>(null);
 
-    // Safari 최적화를 위해 chaos 제한
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const safeChaos = isSafari ? Math.min(chaos, 0.3) : chaos; // Safari는 높은 scale에서 느려짐
-
     const updateAnim = () => {
         const svg = svgRef.current;
         const host = rootRef.current;
@@ -66,18 +61,25 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
         [...dyAnims, ...dxAnims].forEach((a) => a.setAttribute("dur", `${dur}s`));
 
         const disp = svg.querySelector("feDisplacementMap");
-        if (disp) disp.setAttribute("scale", String(30 * (safeChaos || 1))); // Safari 최적화: chaos 낮춤
+        if (disp) disp.setAttribute("scale", String(30 * (chaos || 1)));
 
         const filterEl = svg.querySelector<SVGFilterElement>(`#${CSS.escape(filterId)}`);
         if (filterEl) {
-            // Safari 최적화: filter 영역 줄임 (기존 -200~500% → -50~200%)
-            filterEl.setAttribute("x", "-50%");
-            filterEl.setAttribute("y", "-50%");
-            filterEl.setAttribute("width", "200%");
-            filterEl.setAttribute("height", "200%");
+            filterEl.setAttribute("x", "-200%");
+            filterEl.setAttribute("y", "-200%");
+            filterEl.setAttribute("width", "500%");
+            filterEl.setAttribute("height", "500%");
         }
 
-        // JS로 beginElement 반복 호출 제거 (이미 animate repeatCount="indefinite" 있음)
+        requestAnimationFrame(() => {
+            [...dyAnims, ...dxAnims].forEach((a: any) => {
+                if (typeof a.beginElement === "function") {
+                    try {
+                        a.beginElement();
+                    } catch {}
+                }
+            });
+        });
     };
 
     useEffect(() => {
@@ -135,23 +137,22 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
             <svg ref={svgRef} className="fixed -left-[10000px] -top-[10000px] w-[10px] h-[10px] opacity-[0.001] pointer-events-none" aria-hidden focusable="false">
                 <defs>
                     <filter id={filterId} colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
-                        {/* Safari 최적화: numOctaves 낮춤 (10 → 2) */}
-                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise1" seed="1" />
+                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="1" />
                         <feOffset in="noise1" dx="0" dy="0" result="offsetNoise1">
                             <animate attributeName="dy" values="700; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
 
-                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise2" seed="1" />
+                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="1" />
                         <feOffset in="noise2" dx="0" dy="0" result="offsetNoise2">
                             <animate attributeName="dy" values="0; -700" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
 
-                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise1" seed="2" />
+                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="2" />
                         <feOffset in="noise1" dx="0" dy="0" result="offsetNoise3">
                             <animate attributeName="dx" values="490; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
 
-                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise2" seed="2" />
+                        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="2" />
                         <feOffset in="noise2" dx="0" dy="0" result="offsetNoise4">
                             <animate attributeName="dx" values="0; -490" dur="6s" repeatCount="indefinite" calcMode="linear" />
                         </feOffset>
@@ -159,7 +160,7 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({children, color = "#5227
                         <feComposite in="offsetNoise1" in2="offsetNoise2" result="part1" />
                         <feComposite in="offsetNoise3" in2="offsetNoise4" result="part2" />
                         <feBlend in="part1" in2="part2" mode="color-dodge" result="combinedNoise" />
-                        <feDisplacementMap in="SourceGraphic" in2="combinedNoise" scale={30 * safeChaos} xChannelSelector="R" yChannelSelector="B" />
+                        <feDisplacementMap in="SourceGraphic" in2="combinedNoise" scale="30" xChannelSelector="R" yChannelSelector="B" />
                     </filter>
                 </defs>
             </svg>
