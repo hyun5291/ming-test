@@ -9,7 +9,7 @@ interface HotTopicProps {
     // color: string; // 여기서 color prop 받음
     props?: Topic;
 }
-function extractTextfromContent(content?: string, maxChars = 100) {
+function extractTextfromContent(content?: string, maxChars = 200) {
     if (!content) return;
     // console.log("new-topic.jsonpars>", JSON.parse(content));
     const parsed = typeof content === "string" ? JSON.parse(content) : content;

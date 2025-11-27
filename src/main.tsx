@@ -25,7 +25,8 @@ createRoot(document.getElementById("root")!).render(
             <Routes>
                 <Route element={<Rootlayout />}>
                     {/* Root */}
-                    <Route index element={<App />} />
+                    {/* <Route index element={<App />} /> */}
+                    <Route path="/" element={<App />} />
                     {/* test */}
                     <Route path="/test/chart_test" element={<Chart_test />} />
                     {/* <Route path="/test/getState_test" element={<ExampleGetState />} /> */}

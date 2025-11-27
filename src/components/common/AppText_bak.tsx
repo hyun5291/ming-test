@@ -13,7 +13,6 @@ interface Props {
 }
 function AppTextEditor({props, readonly, onSetContent}: Props) {
     // Creates a new editor instance.
-
     const editor = useCreateBlockNote({
         dictionary: ko,
     });

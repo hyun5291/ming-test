@@ -9,7 +9,7 @@ interface Props {
     props?: Topic;
     // color?: string;
 }
-function extractTextfromContent(content?: string, maxChars = 100) {
+function extractTextfromContent(content?: string, maxChars = 200) {
     if (!content) return;
     // console.log("new-topic.jsonpars>", JSON.parse(content));
     const parsed = typeof content === "string" ? JSON.parse(content) : content;
@@ -50,7 +50,7 @@ function NewTopic({props}: Props) {
                         </p>
                     </div>
                     {/* 본문 */}
-                    <p className="text-neutral-500 line-clamp-3">
+                    <p className=" text-neutral-500 line-clamp-3">
                         {props
                             ? extractTextfromContent(props?.content)
                             : "NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다.NEW Topic 컨텐츠 문구입니다."}

@@ -41,7 +41,7 @@ function AppTextEditor({props, readonly, onSetContent}: Props) {
     // Renders the editor instance using a React component.
     return (
         <BlockNoteView
-            className="bg-input/30 min-h-80"
+            className="bg-input/30"
             editor={editor}
             editable={!readonly}
             onChange={() => {
