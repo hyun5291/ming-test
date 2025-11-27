@@ -38,7 +38,7 @@ function HotTopic({props}: HotTopicProps) {
     return (
         // <ElectricBorder color={color} speed={1} chaos={0.5} thickness={3} style={{borderRadius: 16}} className="min-w-[248px] max-w-[248px]">
         // <div className=" p-3 opacity-80">
-        <Card className="p-0 gap-4 border-0 bg-transparent min-w-[248px] max-w-[248px]" onClick={() => navigate(`/topic/${props ? props?.id : "user"}`)}>
+        <Card className="p-0 gap-4 border-0 bg-transparent min-w-[248px] max-w-[248px]" onClick={() => navigate(`${props ? "/topic/" + props?.id : "/"}`)}>
             <div className="relative">
                 <img src="/images/bg-sample.png" alt="@BG-SAMOPLE" className="h-65 rounded-lg" />
                 <p className="absolute bottom-4 z-10 px-4 font-semibold text-xl line-clamp-2">

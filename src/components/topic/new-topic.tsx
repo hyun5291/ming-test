@@ -39,7 +39,7 @@ function NewTopic({props}: Props) {
     return (
         // <ElectricBorder color={color} speed={1} chaos={0.2} thickness={2} style={{borderRadius: 16}} className="min-w-[520px] max-w-[520px]">
         // <div className="p-3 opacity-80 ">
-        <Card className="p-4 gap-4 min-w-[520px] max-w-[520px]" onClick={() => navigate(`/topic/${props ? props?.id : "user"}`)}>
+        <Card className="p-4 gap-4 min-w-[520px] max-w-[520px]" onClick={() => navigate(`${props ? "/topic/" + props?.id : "/"}`)}>
             <div className="h-fit flex items-center justify-between gap-4">
                 <div className="h-full flex flex-col justify-between">
                     {/* 제목 */}
