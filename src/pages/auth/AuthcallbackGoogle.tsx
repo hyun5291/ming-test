@@ -22,6 +22,7 @@ function AuthcallbackGoogle() {
                     id: data.session.user.id,
                     email: data.session.user.email,
                     role: data.session.user.role,
+                    nickname: data.session.user.user_metadata.name,
                 });
 
                 // 로그인 후 원하는 페이지로 이동
@@ -37,19 +38,20 @@ function AuthcallbackGoogle() {
         loadSession();
 
         // 실시간 상태 변화 감지
-        const {data: listener} = supabase.auth.onAuthStateChange((_event, session) => {
-            if (session?.user) {
-                setUser({
-                    id: session.user.id,
-                    email: session.user.email as string,
-                    role: session.user.role as string,
-                });
-            } else {
-                setUser(null);
-            }
-        });
+        // const {data: listener} = supabase.auth.onAuthStateChange((_event, session) => {
+        //     if (session?.user) {
+        //         setUser({
+        //             id: session.user.id,
+        //             email: session.user.email as string,
+        //             role: session.user.role as string,
+        //             nickname: "리스너냐",
+        //         });
+        //     } else {
+        //         setUser(null);
+        //     }
+        // });
 
-        return () => listener.subscription.unsubscribe();
+        // return () => listener.subscription.unsubscribe();
     }, []);
 
     return (

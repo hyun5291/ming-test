@@ -32,11 +32,11 @@ function AppHeader() {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" className="border-0 bg-transparent focus:outline-none opacity-80">
-                                    {user?.email}
+                                    {user?.nickname}
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-55">
-                                <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+                                <DropdownMenuLabel>{user?.nickname}</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuCheckboxItem
                                     onClick={() => {

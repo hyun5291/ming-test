@@ -32,6 +32,7 @@ const formSchema = z
         email: z.email({
             error: "올바른 형식의 이메일 주소를 입력해주세요.",
         }),
+        nickname: z.string().trim().regex(/^\S+$/, "공백을 포함할 수 없습니다."),
         password: z.string().min(8, {
             error: "비밀번호는 최소 8자 이상이어야 합니다.",
         }),
@@ -54,6 +55,7 @@ function SignUp() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             email: "",
+            nickname: "",
             password: "",
             confirmPassword: "",
         },
@@ -64,6 +66,10 @@ function SignUp() {
     const [serviceAgreed, setServiceAgreed] = useState<boolean>(false); // 서비스 이용약관 동의 여부
     const [privacyAgreed, setPrivacyAgreed] = useState<boolean>(false); // 개인정보 수집 및 이용동의 여부
     const [marketingAgreed, setMarketingAgreed] = useState<boolean>(false); // 마케팅 및 광고 수신 동의 여부
+
+    const handleCheckService = () => setServiceAgreed(!serviceAgreed);
+    const handleCheckPrivacy = () => setPrivacyAgreed(!privacyAgreed);
+    const handleCheckMarketing = () => setMarketingAgreed(!marketingAgreed);
 
     // 일반 회원가입
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -78,6 +84,9 @@ function SignUp() {
             } = await supabase.auth.signUp({
                 email: values.email,
                 password: values.password,
+                options: {
+                    data: {display_name: values.nickname},
+                },
             });
 
             if (signUpError) {
@@ -87,6 +96,21 @@ function SignUp() {
 
             // user와 session 두 값 모두 null이 아닐 경우에만 회원가입이 완료되었음을 의미
             if (user && session) {
+                //users테이블에도 인서트
+                const {error: updateUserError} = await supabase.from("users").insert([
+                    {
+                        id: user.id,
+                        email: user.email,
+                        nickname: values.nickname,
+                        service_agreed: serviceAgreed,
+                        privacy_agreed: privacyAgreed,
+                        marketing_agreed: marketingAgreed,
+                    },
+                ]);
+                if (updateUserError) {
+                    toast.error(updateUserError.message);
+                }
+
                 // 회원가입 성공 시,
                 console.log("user>", user);
                 console.log("session>", session);
@@ -120,6 +144,22 @@ function SignUp() {
                                         </div>
                                         <FormControl>
                                             <Input placeholder="이메일을 입력하세요." {...field} autoComplete="username" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="nickname"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <div className="flex items-center gap-1">
+                                            <Asterisk className="text-[#FA6859]" size={14} />
+                                            <FormLabel>닉네임</FormLabel>
+                                        </div>
+                                        <FormControl>
+                                            <Input placeholder="닉네임을 입력하세요." {...field} autoComplete="username" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -166,7 +206,8 @@ function SignUp() {
                                 {/* 서비스 이용약관 동의 */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Checkbox className="w-[18px] h-[18px]" checked={serviceAgreed} onCheckedChange={(checked) => setServiceAgreed(!!checked)} />
+                                        {/* <Checkbox className="w-[18px] h-[18px]" checked={serviceAgreed} onCheckedChange={(checked) => setServiceAgreed(!!checked)} /> */}
+                                        <Checkbox className="w-[18px] h-[18px]" checked={serviceAgreed} onCheckedChange={handleCheckService} />
                                         <p>서비스 이용약관 동의</p>
                                     </div>
                                     <Button type="button" variant={"link"} className="p-0! gap-1 text-xs">
@@ -177,7 +218,8 @@ function SignUp() {
                                 {/* 개인정보 수집 및 이용동의 */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Checkbox className="w-[18px] h-[18px]" checked={privacyAgreed} onCheckedChange={(checked) => setPrivacyAgreed(!!checked)} />
+                                        {/* <Checkbox className="w-[18px] h-[18px]" checked={privacyAgreed} onCheckedChange={(checked) => setPrivacyAgreed(!!checked)} /> */}
+                                        <Checkbox className="w-[18px] h-[18px]" checked={privacyAgreed} onCheckedChange={handleCheckPrivacy} />
                                         <p>개인정보 수집 및 이용동의</p>
                                     </div>
                                     <Button type="button" variant={"link"} className="p-0! gap-1 text-xs">
@@ -193,7 +235,8 @@ function SignUp() {
                                 {/* 서비스 이용약관 동의 */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Checkbox className="w-[18px] h-[18px]" checked={marketingAgreed} onCheckedChange={(checked) => setMarketingAgreed(!!checked)} />
+                                        {/* <Checkbox className="w-[18px] h-[18px]" checked={marketingAgreed} onCheckedChange={(checked) => setMarketingAgreed(!!checked)} /> */}
+                                        <Checkbox className="w-[18px] h-[18px]" checked={marketingAgreed} onCheckedChange={handleCheckMarketing} />
                                         <p>마케팅 및 광고 수신 동의</p>
                                     </div>
                                     <Button type="button" variant={"link"} className="p-0! gap-1 text-xs">

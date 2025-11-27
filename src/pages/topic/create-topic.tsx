@@ -126,7 +126,7 @@ function UpdateTopic() {
             //Supabase 새로운 세션 요청
             const {data, error} = await supabase
                 .from("topics")
-                .update({author: user?.id, title: title, category: category, content: JSON.stringify(content), thumbnail: thumbnailUrl, status: "TEMP", created_at: "now()", updated_at: "now()"})
+                .update({title: title, category: category, content: JSON.stringify(content), thumbnail: thumbnailUrl, status: "TEMP", updated_at: "now()"})
                 .eq("id", topic_id)
                 .select();
 
@@ -216,7 +216,7 @@ function UpdateTopic() {
         //-------------db update 로직//-------------//-------------//-------------//-------------//-------------
         const {data, error} = await supabase
             .from("topics")
-            .update({author: user?.id, title: title, category: category, content: JSON.stringify(content), thumbnail: thumbnailUrl, status: "PUBLISH", created_at: "now()", updated_at: "now()"})
+            .update({title: title, category: category, content: JSON.stringify(content), thumbnail: thumbnailUrl, status: "PUBLISH", updated_at: "now()"})
             .eq("id", topic_id)
             .select();
 

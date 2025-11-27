@@ -48,7 +48,7 @@ function HotTopic({props}: HotTopicProps) {
                 </p>
                 <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent rounded-b-lg"></div>
             </div>
-            <UserInfo uid={props?.author} />
+            <UserInfo props={props} />
         </Card>
         // </div>
         // </ElectricBorder>

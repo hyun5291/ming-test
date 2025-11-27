@@ -1,16 +1,17 @@
+import type {Topic} from "@/types";
 import {Separator} from "../ui";
 import {BadgeCheck} from "lucide-react";
 
-interface UserProps {
-    uid?: string | null;
+interface Props {
+    props?: Topic;
 }
 
-function UserInfo({uid}: UserProps) {
+function UserInfo({props}: Props) {
     return (
         <div className="flex flex-col">
             <div className="flex items-center gap-1">
                 <BadgeCheck size={14} className="text-green-500 mb-0.5" />
-                <p className="line-clamp-1">{uid ?? "디폴트널값"}</p>
+                <p className="line-clamp-1">{props?.authorName ?? "디폴트널값"}</p>
             </div>
             <div className="flex items-center text-neutral-500 text-xs gap-2">
                 <p>IT 및 기술분야</p>

@@ -13,7 +13,7 @@ function RootLayout() {
     const setSession = useAuthStore((s) => s.setSession);
     // console.log("(layout)user>", user);
     // console.log("(layout)user.email>", user?.email);
-    console.log("(layout)session>", session);
+    // console.log("(layout)session>", session);
 
     const {pathname} = useLocation();
     useEffect(() => {

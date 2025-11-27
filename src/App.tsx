@@ -93,6 +93,7 @@ function App() {
             if (data) {
                 //
                 //console.log("App-data>", data);
+
                 setTopics(data);
             }
         } catch (err) {
@@ -142,7 +143,7 @@ function App() {
         try {
             const {data, error} = await supabase
                 .from("topics")
-                .insert([{author: user.id}])
+                .insert([{author: user.id, authorName: user.nickname}])
                 .select();
 
             if (error || !data) {

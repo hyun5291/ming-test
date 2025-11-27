@@ -50,7 +50,7 @@ function SignIn() {
                 // 로그인 성공 시,
                 console.log("(sign-in)user>", user);
                 console.log("(sign-in)session>", session);
-                setUser({id: user.id, email: user.email, role: user.role}); //스토어
+                setUser({id: user.id, email: user.email, role: user.role, nickname: user.user_metadata.display_name}); //스토어
                 setSession(session); //스토어
                 toast.success("로그인을 완료하였습니다.");
                 navigate("/"); // => 메인 페이지로 리디렉션
@@ -68,7 +68,8 @@ function SignIn() {
             const {data, error} = await supabase.auth.signInWithOAuth({
                 provider: "google",
                 options: {
-                    redirectTo: `${import.meta.env.VITE_SUPABASE_URL_LOCALHOST}/auth/callback`,
+                    // redirectTo: `${import.meta.env.VITE_SUPABASE_URL_LOCALHOST}/auth/callback`,
+                    redirectTo: `${window.location.origin}/auth/callback`,
                     queryParams: {access_type: "offline", prompt: "consent"},
                 },
             });
@@ -83,6 +84,7 @@ function SignIn() {
             throw error;
         }
     };
+    console.log(window.location.origin);
 
     return (
         <div className="w-full max-w-[1328px] h-full flex items-center justify-center">

@@ -64,7 +64,7 @@ function NewTopic({props}: Props) {
             </div>
             <Separator />
             <div className="flex items-end justify-between">
-                <UserInfo uid={props?.author} />
+                <UserInfo props={props} />
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-3">
                         <div className="flex items-center gap-1">
