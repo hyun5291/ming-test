@@ -2,7 +2,7 @@ import {Outlet, useLocation} from "react-router";
 import {ThemeProvider} from "@/components/theme-provider";
 import {AppFooter, AppHeader} from "@/components/common";
 import {Toaster} from "@/components/ui/sonner";
-// import Galaxy from "@/components/backgrounds/Galaxy";
+import Galaxy from "@/components/backgrounds/Galaxy";
 import {useEffect} from "react";
 import supabase from "@/utils/supabase";
 import {useAuthStore} from "@/store/useAuthStore";
@@ -96,7 +96,7 @@ function RootLayout() {
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             {/* Galaxy 배경 */}
-            {/* <Galaxy
+            <Galaxy
                 mouseRepulsion={true}
                 mouseInteraction={false}
                 density={1.0}
@@ -107,7 +107,7 @@ function RootLayout() {
                 rotationSpeed={0.1}
                 // className="absolute inset-0 w-full h-full"
                 className="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1]"
-            /> */}
+            />
             {/* <Button onClick={() => test_refreshToken()}>리프레쉬테스트</Button> */}
             <div className="relative flex flex-col items-center justify-center w-full text-white">
                 <div className="w-full flex flex-col">
