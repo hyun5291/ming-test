@@ -3,7 +3,7 @@ import {Separator} from "../ui";
 import {BadgeCheck} from "lucide-react";
 
 interface Props {
-    props?: Topic;
+    props?: Topic | null;
 }
 
 function UserInfo({props}: Props) {

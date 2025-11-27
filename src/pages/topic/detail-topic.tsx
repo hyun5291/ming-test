@@ -159,7 +159,7 @@ function DetailTopic() {
             <div className="mt-1 rounded-md">{topic && <AppTextEditor props={JSON.parse(topic.content)} readonly={true} />}</div>
 
             <div className="mt-2 bg-input/30 p-3 rounded-md flex items-end justify-between">
-                <UserInfo uid={topic?.author} />
+                <UserInfo props={topic} />
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-3">
                         <div className="flex items-center gap-1">
