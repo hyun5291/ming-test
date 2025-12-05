@@ -1,5 +1,5 @@
-import {ChartNoAxesCombined, ChevronDown, CodeXml, DraftingCompass, Footprints, Goal, Lightbulb, List, PencilLine, Rocket, Search} from "lucide-react";
-import {Button, Input, Spinner} from "./components/ui";
+import {ChartNoAxesCombined, ChevronDown, CodeXml, DraftingCompass, Footprints, Goal, Lightbulb, List, NotebookPen, PencilLine, Rocket, Search} from "lucide-react";
+import {Badge, Button, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Separator, Spinner} from "./components/ui";
 import {HotTopic, NewTopic} from "./components/topic";
 import {useNavigate, useSearchParams} from "react-router";
 import {GradientText} from "./components/ui/shadcn-io/gradient-text";
@@ -8,6 +8,8 @@ import {useAuthStore} from "./store/useAuthStore";
 import supabase from "./utils/supabase";
 import {useEffect, useRef, useState} from "react";
 import type {Topic} from "./types";
+import {AppNodataMessage} from "./components/common";
+import dayjs from "dayjs";
 
 const CATEGORIES = [
     {icon: List, label: "전체", searchValue: ""},
@@ -37,6 +39,7 @@ function App() {
     const [nowcate, setNowcate] = useState<string>(""); //선택카테고리 기본값공백=전체
     const inputRef = useRef<HTMLInputElement>(null); //검색어
     const [topics, setTopics] = useState<Topic[]>([]);
+    const [drafts, setDrafts] = useState<Topic[]>([]);
 
     const [searparams, setSearparams] = useSearchParams();
     const searcategory = searparams.get("category") || "";
@@ -107,7 +110,7 @@ function App() {
             const query = supabase.from("topics").select("*").eq("status", "PUBLISH").order("created_at", {ascending: false}).limit(4);
 
             if (searchValue && searchValue.trim() !== "") {
-                query.like("title", `%${searchValue}%`);
+                query.ilike("title", `%${searchValue}%`);
             }
 
             if (searcategory && searcategory.trim() !== "") {
@@ -130,8 +133,27 @@ function App() {
         }
     };
 
+    const fetchDrafts = async () => {
+        if (!user) return;
+
+        try {
+            const {data, error} = await supabase.from("topics").select("*").eq("author", user.id).eq("status", "TEMP");
+
+            if (error) {
+                toast.error(error.message);
+                return;
+            }
+
+            if (data) setDrafts(data);
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    };
+
     useEffect(() => {
         // fetchTopics("", "");
+        if (user) fetchDrafts();
         fetchTopics_re();
     }, [searcategory]);
 
@@ -300,10 +322,64 @@ function App() {
                     </div>
                 </section>
             </div>
-            <Button variant={"destructive"} className="fixed bottom-40 left-[57%] -translate-1/2 p-5! rounded-full opacity-80 cursor-pointer" onClick={moveToPage}>
-                <PencilLine />
-                토픽 작성하기
-            </Button>
+            <div className="fixed bottom-45 left-[57%] -translate-1/2 flex items-center justify-center gap-3">
+                <Button variant={"destructive"} className=" p-5! rounded-full opacity-80 cursor-pointer" onClick={moveToPage}>
+                    <PencilLine />
+                    토픽 작성하기
+                </Button>
+                {user && (
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant={"outline"} size={"icon"} className="p-5! rounded-full opacity-80 cursor-pointer">
+                                <NotebookPen className="text-green-500" />
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>임시 저장된 토픽</DialogTitle>
+                                <DialogDescription>임시 저장된 토픽 목록입니다. 이어서 작성하거나 삭제할 수 있습니다.</DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-3">
+                                <div className="flex items-center gap-2">
+                                    <p>임시 저장</p>
+                                    <p className="text-base text-green-600 -mr-1.5">{drafts.length}</p>
+                                    <p>건</p>
+                                </div>
+                                <Separator />
+                                <div className="min-h-80 h-80 flex flex-col items-center justify-start gap-3 overflow-y-scroll">
+                                    {drafts.length === 0 ? (
+                                        <AppNodataMessage />
+                                    ) : (
+                                        drafts.map((draft: Topic, index: number) => (
+                                            <div
+                                                key={index}
+                                                className="w-full flex items-center justify-between py-2 px-4 rounded-md bg-card/50 cursor-pointer"
+                                                onClick={() => navigate(`/topic/${draft.id}/edit`)}
+                                            >
+                                                <div className="flex items-start gap-2">
+                                                    <Badge className="w-5 h-5 mt-[3px] rounded-sm text-white bg-[#E26F24]">{index + 1}</Badge>
+                                                    <div className="flex flex-col">
+                                                        <p className="line-clamp-1">{draft.title ?? "등록된 토픽 제목이 없습니다."}</p>
+                                                        <p className="text-xs text-neutral-500">작성일: {dayjs(draft.created_at).format("YYYY. MM. DD")}</p>
+                                                    </div>
+                                                </div>
+                                                <Badge variant={"outline"}>작성중</Badge>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button type="button" variant={"outline"}>
+                                        닫기
+                                    </Button>
+                                </DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                )}
+            </div>
         </div>
     );
 }

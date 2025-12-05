@@ -11,6 +11,7 @@ import AuthcallbackGoogle from "./pages/auth/AuthcallbackGoogle.tsx";
 import CreateTopic from "./pages/topic/create-topic.tsx"; //토픽작성
 import DetailTopic from "./pages/topic/detail-topic.tsx"; //토픽상세
 import Mychart from "./pages/Mychart.tsx"; //내챠트
+import Kimchart from "./pages/Kimchart.tsx"; //Kimchart내챠트
 import Chart_test from "./test/Chart_test.tsx"; //챠트테스트
 import UserProfile from "./pages/user/profile.tsx";
 
@@ -34,6 +35,7 @@ createRoot(document.getElementById("root")!).render(
                     <Route path="/test/Spinner_test" element={<Spinner_test />} />
                     {/* mychart */}
                     <Route path="/mychart" element={<Mychart />} />
+                    <Route path="/kimchart" element={<Kimchart />} />
                     {/* AUTH */}
                     <Route path="/sign-up" element={<SignUp />} />
                     <Route path="/sign-in" element={<SignIn />} />

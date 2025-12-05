@@ -8,12 +8,12 @@ import supabase from "@/utils/supabase";
 import {useAuthStore} from "@/store/useAuthStore";
 
 function RootLayout() {
-    // const user = useAuthStore((s) => s.user);
+    const user = useAuthStore((s) => s.user);
     const session = useAuthStore((s) => s.session);
     const setSession = useAuthStore((s) => s.setSession);
-    // console.log("(layout)user>", user);
+    console.log("(layout)user>", user);
     // console.log("(layout)user.email>", user?.email);
-    // console.log("(layout)session>", session);
+    //console.log("(layout)session>", session);
 
     const {pathname} = useLocation();
     useEffect(() => {
@@ -22,51 +22,54 @@ function RootLayout() {
 
     useEffect(() => {
         console.log("(layout)useEffect실행");
-        if (!session) return;
-        //supabase 자주 호출하기 싫어서 (유료라면 쫌....)
-        //zustand persist를 이용해 간간히 랜더링할때마다 만료 10분전인지를 체크한후
-        //10분이하로 남았을때만 supabase refresh토큰을 덮어쓰기
+        // if (!session) return;
+        // //supabase 자주 호출하기 싫어서 (유료라면 쫌....)
+        // //zustand persist를 이용해 간간히 랜더링할때마다 만료 10분전인지를 체크한후
+        // //10분이하로 남았을때만 supabase refresh토큰을 덮어쓰기
 
-        validateSession();
-        // 5분마다 체크
-        const interval = setInterval(() => {
-            validateSession();
-        }, 5 * 60 * 1000);
-        // 컴포넌트 unmount 시 interval 제거
-        return () => clearInterval(interval);
-        ////  validateSession  /////////////////////////
-        async function validateSession() {
-            const expiresAtMs = session.expires_at * 1000;
-            const now = Date.now();
-            const timeLeft = expiresAtMs - now;
+        // validateSession();
+        // // 5분마다 체크
+        // const interval = setInterval(() => {
+        //     validateSession();
+        // }, 5 * 60 * 1000);
+        // // 컴포넌트 unmount 시 interval 제거
+        // return () => clearInterval(interval);
+        // ////  validateSession  /////////////////////////
+        // async function validateSession() {
+        //     const expiresAtMs = session.expires_at * 1000;
+        //     const now = Date.now();
+        //     const timeLeft = expiresAtMs - now;
 
-            // 만료까지 10분 이하라면 refresh 진행
-            if (timeLeft <= 600000) {
-                await refreshToken();
-            }
-        }
-        ////  refreshToken  /////////////////////////
-        async function refreshToken() {
-            try {
-                //Supabase 새로운 세션 요청
-                const {data, error} = await supabase.auth.refreshSession({
-                    refresh_token: session.refresh_token,
-                });
+        //     console.log("timeLeft>", timeLeft);
 
-                if (error || !data.session) {
-                    //설마실패할일이있을까 체크.
-                    console.error("토큰 갱신 실패:", error);
-                    setSession(null);
-                    return;
-                }
+        //     // 만료까지 10분 이하라면 refresh 진행
+        //     if (timeLeft <= 600000) {
+        //         await refreshToken();
+        //     }
+        // }
+        // ////  refreshToken  /////////////////////////
+        // async function refreshToken() {
+        //     try {
+        //         //Supabase 새로운 세션 요청
+        //         const {data, error} = await supabase.auth.refreshSession({
+        //             refresh_token: session.refresh_token,
+        //         });
+        //         console.log("refreshSession>", data);
 
-                setSession(data.session); //토큰 다시 로컬저장
-            } catch (err) {
-                //설마 여기까진않오겠지...
-                console.error("Refresh 예외 발생:", err);
-                setSession(null);
-            }
-        }
+        //         if (error || !data.session) {
+        //             //설마실패할일이있을까 체크.
+        //             console.error("토큰 갱신 실패:", error);
+        //             setSession(null);
+        //             return;
+        //         }
+
+        //         setSession(data.session); //토큰 다시 로컬저장
+        //     } catch (err) {
+        //         //설마 여기까진않오겠지...
+        //         console.error("Refresh 예외 발생:", err);
+        //         setSession(null);
+        //     }
+        // }
         /////////////////////////////////////////////////////////
     }, [session, setSession]);
 

@@ -84,7 +84,7 @@ function SignIn() {
             throw error;
         }
     };
-    console.log(window.location.origin);
+    // console.log(window.location.origin);
 
     return (
         <div className="w-full max-w-[1328px] h-full flex items-center justify-center">

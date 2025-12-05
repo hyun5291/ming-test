@@ -1,13 +1,13 @@
-// import {Spinner} from "@/components/ui";
+import {Spinner} from "@/components/ui";
 import {useAuthStore} from "@/store/useAuthStore";
 import supabase from "@/utils/supabase";
 import {useEffect} from "react";
-// import {useNavigate} from "react-router";
+import {useNavigate} from "react-router";
 
 function AuthcallbackGoogle() {
     const setUser = useAuthStore((s) => s.setUser);
     const setSession = useAuthStore((s) => s.setSession);
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadSession = async () => {
@@ -26,9 +26,9 @@ function AuthcallbackGoogle() {
                 });
 
                 // 로그인 후 원하는 페이지로 이동
-                // navigate("/sign-in");
-                console.log("tt>", data);
-                console.log("aa>", data.session);
+                navigate("/");
+                // console.log("tt>", data);
+                // console.log("aa>", data.session);
             }
             if (error) {
                 console.log(error);
@@ -55,11 +55,8 @@ function AuthcallbackGoogle() {
     }, []);
 
     return (
-        <div>
-            Auth.................
-            {/* <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-xs">
-                <Spinner className="size-8" />
-            </div> */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-xs">
+            <Spinner className="size-8" />
         </div>
     );
 }
